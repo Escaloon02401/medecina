@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedConnect</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap');
+:root{--bg:#f5f1ea;--bg2:#ede8df;--card:#fff;--text:#1a1a18;--text2:#6b6b64;--accent:#2d6a4f;--a2:#52b788;--al:#d8f3dc;--danger:#c1121f;--dl:#fce8e8;--warn:#e07c00;--wl:#fff3e0;--border:#ddd8ce;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideR{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+#auth{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1b4332,#2d6a4f,#52b788);padding:20px}
+.ac{background:#fff;border-radius:24px;padding:44px 38px;width:100%;max-width:410px;box-shadow:0 24px 64px rgba(0,0,0,.22);animation:fadeUp .5s ease}
+.alo{text-align:center;margin-bottom:28px}
+.ali{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 10px}
+.alo h1{font-family:'Fraunces',serif;font-size:24px;font-weight:600}
+.alo p{color:#6b6b64;font-size:13px;margin-top:3px}
+.rtabs{display:flex;gap:8px;margin-bottom:20px}
+.rtab{flex:1;padding:10px;border-radius:10px;border:2px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--text2)}
+.rtab.on{border-color:var(--accent);background:var(--al);color:var(--accent)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase}
+.fi{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--accent);background:#fff}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b64' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center}
+.btn-p{width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:15px;cursor:pointer;transition:all .2s}
+.btn-p:hover{opacity:.9}
+.dhint{text-align:center;font-size:12px;color:var(--text2);margin-top:12px}
+.dhint b{color:var(--accent);cursor:pointer;text-decoration:underline}
+
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.on{display:flex}
+.hdr{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 1px 12px rgba(0,0,0,.06)}
+.hlogo{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--accent);white-space:nowrap}
+.hlogo span{color:var(--text2);font-weight:400}
+.hnav{display:flex;gap:2px;margin-left:16px}
+.nb{padding:7px 13px;border-radius:9px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.nb:hover{background:var(--bg2);color:var(--text)}.nb.on{background:var(--al);color:var(--accent)}
+.nbadge{background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:10px}
+.huser{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--a2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0}
+.uname{font-size:13px;font-weight:600;white-space:nowrap}
+.urole{font-size:11px;color:var(--text2)}
+.btn-out{padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s}
+.btn-out:hover{border-color:var(--danger);color:var(--danger)}
+
+.main{flex:1;padding:26px 22px;max-width:1080px;margin:0 auto;width:100%}
+.page{display:none;animation:fadeUp .3s ease}.page.on{display:block}
+.ptitle{font-family:'Fraunces',serif;font-size:26px;font-weight:600;margin-bottom:4px}
+.psub{color:var(--text2);font-size:13px;margin-bottom:24px}
+.card{background:var(--card);border-radius:var(--r);padding:22px;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.06)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.slabel{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:12px}
+
+.scard{background:var(--card);border-radius:var(--r);padding:18px;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.06);transition:all .2s}
+.scard:hover{transform:translateY(-2px)}
+.sval{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:var(--accent)}
+.slbl{font-size:13px;color:var(--text2);margin-top:3px}
+.sico{font-size:20px;margin-bottom:7px}
+
+.dcard{background:var(--card);border-radius:var(--r);padding:18px;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.06);transition:all .2s}
+.dcard:hover{transform:translateY(-2px);border-color:var(--a2)}
+.dhead{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.dav{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#2d6a4f,#74c69d);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:#fff;font-weight:700}
+.dname{font-weight:600;font-size:14px}
+.dspec{color:var(--text2);font-size:12px;margin-top:2px}
+.drat{color:#e07c00;font-size:12px;margin-top:2px}
+.donl{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:3px;flex-shrink:0}
+.odot{width:6px;height:6px;border-radius:50%;background:var(--a2);display:inline-block;animation:pulse 2s infinite}
+.dtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.tag{padding:3px 8px;border-radius:20px;font-size:11px;background:var(--al);color:var(--accent);font-weight:500}
+.btn-bk{width:100%;padding:9px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-bk:hover{background:#1b4332}
+
+/* APPOINTMENTS */
+.ai{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);margin-bottom:9px;transition:all .2s;flex-wrap:wrap}
+.ai:hover{border-color:var(--a2)}
+.ai.dim{opacity:.55}
+.adate{text-align:center;min-width:48px;border-radius:9px;padding:7px;flex-shrink:0}
+.adate.g{background:var(--al)}.adate.r{background:var(--dl)}.adate.gr{background:#f0f0ee}
+.aday{font-family:'Fraunces',serif;font-size:20px;font-weight:600;line-height:1}
+.aday.g{color:var(--accent)}.aday.r{color:var(--danger)}.aday.gr{color:#aaa}
+.amon{font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.amon.g{color:var(--accent)}.amon.r{color:var(--danger)}.amon.gr{color:#aaa}
+.ainfo{flex:1;min-width:140px}
+.adoc{font-weight:600;font-size:14px}
+.aspec{color:var(--text2);font-size:12px}
+.atime{font-size:12px;color:var(--text2);margin-top:2px}
+.anote{font-size:11px;margin-top:2px}
+.abtns{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.b-conf{background:var(--al);color:var(--accent)}
+.b-pend{background:var(--wl);color:var(--warn)}
+.b-done{background:#f0f0ee;color:#777}
+.b-rej{background:var(--dl);color:var(--danger)}
+.b-can{background:#f0f0ee;color:#999}
+
+.abtn{padding:6px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;border:none}
+.abtn-green{background:var(--accent);color:#fff}.abtn-green:hover{background:#1b4332}
+.abtn-red{background:transparent;border:1px solid var(--danger)!important;color:var(--danger)}.abtn-red:hover{background:var(--dl)}
+.abtn-grey{background:transparent;border:1px solid var(--border)!important;color:var(--text2)}.abtn-grey:hover{border-color:var(--danger)!important;color:var(--danger)}
+.abtn-done{background:#f0f0ee;color:#555}.abtn-done:hover{background:#e0e0e0}
+
+.ftabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.ftab{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .2s}
+.ftab:hover{border-color:var(--a2)}.ftab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* CHAT */
+.chat-wrap{display:grid;grid-template-columns:255px 1fr;gap:16px;height:calc(100vh - 185px);min-height:460px}
+.csb{background:var(--card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.csbh{padding:14px 15px;border-bottom:1px solid var(--border);font-weight:600;font-size:13px}
+.clist{flex:1;overflow-y:auto}
+.cc{padding:12px 14px;cursor:pointer;transition:all .15s;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.cc:hover{background:var(--bg)}.cc.on{background:var(--al)}
+.cinfo{flex:1;min-width:0}
+.cname{font-weight:600;font-size:13px}
+.cmsg{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.udot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.cmain{background:var(--card);border-radius:var(--r);border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.chead{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:#fafaf8}
+.chn{font-weight:600;font-size:14px}
+.chs{font-size:11px;color:var(--a2);margin-top:1px;display:flex;align-items:center;gap:3px}
+.gdot{width:6px;height:6px;border-radius:50%;background:var(--a2);animation:pulse 2s infinite}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:9px;background:var(--bg)}
+.msg{max-width:68%}
+.msg.me{align-self:flex-end}.msg.them{align-self:flex-start}
+.mb{padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5}
+.msg.me .mb{background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.msg.them .mb{background:var(--card);color:var(--text);border-bottom-left-radius:3px;border:1px solid var(--border)}
+.mt{font-size:10px;color:var(--text2);margin-top:2px}
+.msg.me .mt{text-align:right}
+.msnd{font-size:11px;font-weight:600;color:var(--accent);margin-bottom:2px}
+.cwrap{padding:13px 17px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:#fafaf8}
+.ci{flex:1;padding:10px 13px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;min-height:42px;max-height:110px;transition:border-color .2s}
+.ci:focus{border-color:var(--accent);background:#fff}
+.btn-send{width:42px;height:42px;border-radius:11px;border:none;background:var(--accent);color:#fff;font-size:15px;cursor:pointer;transition:all .2s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.btn-send:hover{background:#1b4332}
+
+/* CARD */
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:9px}
+.ii{background:var(--bg2);border-radius:9px;padding:11px 12px}
+.il{font-size:11px;color:var(--text2);margin-bottom:2px}
+.iv{font-size:14px;font-weight:600}
+.tl{position:relative;padding-left:19px}
+.tl::before{content:'';position:absolute;left:5px;top:3px;bottom:3px;width:2px;background:var(--border)}
+.tli{position:relative;margin-bottom:15px}
+.tldot{width:11px;height:11px;border-radius:50%;background:var(--a2);position:absolute;left:-16px;top:3px;border:2px solid #fff}
+.tldate{font-size:11px;color:var(--text2);margin-bottom:1px}
+.tltitle{font-weight:600;font-size:13px}
+.tldesc{font-size:12px;color:var(--text2);margin-top:1px}
+.prow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;border:1px solid var(--border);margin-bottom:9px;background:var(--card);transition:all .2s}
+.prow:hover{border-color:var(--a2)}
+
+/* MODALS */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.46);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.moverlay.on{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--card);border-radius:18px;padding:28px;width:100%;max-width:450px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeUp .3s ease}
+.mtitle{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:16px}
+.tslots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.ts{padding:8px;border-radius:7px;border:1.5px solid var(--border);text-align:center;font-size:12px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.ts.taken{background:#f5f5f5;color:#bbb;cursor:not-allowed;border-color:#eee}
+.ts:not(.taken):hover{border-color:var(--a2)}.ts.on{border-color:var(--accent);background:var(--al);color:var(--accent);font-weight:600}
+.macts{display:flex;gap:9px;margin-top:16px}
+.btn-cx{flex:1;padding:11px;border-radius:9px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer;color:var(--text2);transition:all .2s}
+.btn-cx:hover{border-color:var(--danger);color:var(--danger)}
+
+.cm{background:var(--card);border-radius:18px;padding:26px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeUp .3s ease;text-align:center}
+.cm-ico{font-size:38px;margin-bottom:10px}
+.cm-title{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin-bottom:7px}
+.cm-sub{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5;white-space:pre-line}
+.cm-acts{display:flex;gap:9px}
+.btn-danger{flex:1;padding:11px;border-radius:9px;border:none;background:var(--danger);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-danger:hover{background:#a00}
+.btn-success{flex:1;padding:11px;border-radius:9px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-success:hover{background:#1b4332}
+
+.toast{position:fixed;bottom:22px;right:22px;color:#fff;padding:12px 17px;border-radius:11px;font-size:13px;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,.18);z-index:9999;animation:fadeUp .3s ease;display:flex;align-items:center;gap:7px}
+.toast.green{background:#1b4332}.toast.red{background:var(--danger)}.toast.orange{background:var(--warn)}
+
+.dbbar{background:#1b4332;color:#a7f3d0;font-size:11px;padding:4px 16px;text-align:center;font-weight:500}
+.empty{text-align:center;padding:44px 20px;color:var(--text2)}
+.empty-ico{font-size:36px;margin-bottom:9px}
+.empty-t{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+
+@media(max-width:720px){
+  .g2,.g3{grid-template-columns:1fr}
+  .chat-wrap{grid-template-columns:1fr}
+  .csb{display:none}
+  .hdr{padding:0 12px}
+  .main{padding:14px 12px}
+}
+</style>
+</head>
+<body>
+<div class="dbbar" id="dbbar">&#128197; MedConnect DB — локальная база данных активна</div>
+
+<div id="auth">
+  <div class="ac">
+    <div class="alo">
+      <div class="ali">&#127973;</div>
+      <h1>MedConnect</h1>
+      <p>Платформа телемедицины</p>
+    </div>
+    <div class="rtabs">
+      <button class="rtab on" onclick="selRole('patient')">&#128100; Я пациент</button>
+      <button class="rtab" onclick="selRole('doctor')">&#129658; Я врач</button>
+    </div>
+    <div class="fg">
+      <label>Имя и фамилия</label>
+      <input id="an" class="fi" placeholder="Иван Иванов" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div class="fg" id="sg" style="display:none">
+      <label>Специализация</label>
+      <select id="aspec" class="fi fsel">
+        <option>Терапевт</option><option>Кардиолог</option><option>Невролог</option>
+        <option>Дерматолог</option><option>Педиатр</option><option>Эндокринолог</option>
+      </select>
+    </div>
+    <button class="btn-p" onclick="login()">Войти &#8594;</button>
+    <div class="dhint">Демо: <b onclick="dlogin('patient')">пациент</b> или <b onclick="dlogin('doctor')">врач</b></div>
+  </div>
+</div>
+
+<div id="app">
+  <header class="hdr">
+    <div class="hlogo">Med<span>Connect</span></div>
+    <nav class="hnav" id="hnav"></nav>
+    <div class="huser">
+      <div class="av" id="hav"></div>
+      <div><div class="uname" id="hname"></div><div class="urole" id="hrole"></div></div>
+      <button class="btn-out" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+  <main class="main">
+    <div class="page" id="pg-dash">
+      <div class="ptitle" id="dtitle"></div>
+      <div class="psub" id="dsub"></div>
+      <div class="g3" id="dstats"></div>
+      <div style="margin-top:20px" id="dcont"></div>
+    </div>
+    <div class="page" id="pg-docs">
+      <div class="ptitle">Найти врача</div>
+      <div class="psub">Выберите специалиста и запишитесь на консультацию</div>
+      <div class="ftabs" id="specf"></div>
+      <div class="g2" id="doclist"></div>
+    </div>
+    <div class="page" id="pg-appts">
+      <div class="ptitle" id="aptitle">Приёмы</div>
+      <div class="psub" id="apsub"></div>
+      <div class="ftabs" id="apfilter"></div>
+      <div id="aplist"></div>
+    </div>
+    <div class="page" id="pg-chat">
+      <div class="ptitle">Сообщения</div>
+      <div class="psub">Чат с врачами и пациентами</div>
+      <div class="chat-wrap">
+        <div class="csb">
+          <div class="csbh">&#128172; Диалоги</div>
+          <div class="clist" id="clist"></div>
+        </div>
+        <div class="cmain">
+          <div class="chead">
+            <div class="av" id="cpav">?</div>
+            <div><div class="chn" id="cpname">Выберите диалог</div><div class="chs"><span class="gdot"></span> онлайн</div></div>
+          </div>
+          <div class="msgs" id="msgs"></div>
+          <div class="cwrap">
+            <textarea class="ci" id="ci" placeholder="Напишите сообщение..." rows="1"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+            <button class="btn-send" onclick="sendMsg()">&#10148;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="pg-card">
+      <div class="ptitle" id="ctitle"></div>
+      <div class="psub" id="csub"></div>
+      <div id="ccont"></div>
+    </div>
+  </main>
+</div>
+
+<div class="moverlay" id="bmodal">
+  <div class="modal">
+    <div class="mtitle">&#128197; Запись на приём</div>
+    <div id="bdocinfo" style="display:flex;align-items:center;gap:11px;margin-bottom:16px;padding:12px;background:var(--bg);border-radius:11px"></div>
+    <div class="fg"><label>Дата</label><input type="date" id="bdate" class="fi" onchange="renderSlots()"></div>
+    <div class="fg"><label>Доступное время</label><div class="tslots" id="tslots"></div></div>
+    <div class="fg"><label>Причина</label><input class="fi" id="breason" placeholder="Опишите симптомы..."></div>
+    <div class="macts">
+      <button class="btn-cx" onclick="closeM('bmodal')">Отмена</button>
+      <button class="btn-p" style="flex:2" onclick="confirmBook()">Записаться</button>
+    </div>
+  </div>
+</div>
+
+<div class="moverlay" id="cmodal">
+  <div class="cm">
+    <div class="cm-ico" id="cico"></div>
+    <div class="cm-title" id="ctit"></div>
+    <div class="cm-sub" id="csub2"></div>
+    <div class="cm-acts">
+      <button class="btn-cx" onclick="closeM('cmodal')">Отмена</button>
+      <button id="cbtn" onclick="doAction()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var DBK='mc_db_v3';
+var DOCS=[
+  {id:1,name:'Анна Петрова',spec:'Терапевт',ini:'АП',exp:'12 лет',rat:'4.9',price:'800 &#x20BD;',tags:['ОРВИ','Хронические','Профилактика'],online:true},
+  {id:2,name:'Михаил Соколов',spec:'Кардиолог',ini:'МС',exp:'18 лет',rat:'4.8',price:'1200 &#x20BD;',tags:['Гипертония','ЭКГ','Аритмия'],online:true},
+  {id:3,name:'Елена Воронова',spec:'Невролог',ini:'ЕВ',exp:'9 лет',rat:'4.7',price:'1000 &#x20BD;',tags:['Мигрень','Остеохондроз','Стресс'],online:false},
+  {id:4,name:'Дмитрий Орлов',spec:'Дерматолог',ini:'ДО',exp:'7 лет',rat:'4.9',price:'900 &#x20BD;',tags:['Акне','Экзема','Псориаз'],online:true},
+  {id:5,name:'Ирина Зайцева',spec:'Педиатр',ini:'ИЗ',exp:'15 лет',rat:'5.0',price:'850 &#x20BD;',tags:['Дети 0-18','Прививки','Развитие'],online:true},
+  {id:6,name:'Алексей Кузнецов',spec:'Эндокринолог',ini:'АК',exp:'11 лет',rat:'4.6',price:'1100 &#x20BD;',tags:['Диабет','Щитовидка','Гормоны'],online:false}
+];
+var TIMES=['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+var PCARDS={
+  'p1':{name:'Иван Иванов',dob:'15.03.1988',age:'37 лет',blood:'A(II) Rh+',height:'178 см',weight:'82 кг',allergy:'Пенициллин',chronic:'Гипертония I ст.',phone:'+7 (999) 123-45-67',email:'ivanov@mail.ru',hist:[{date:'10 фев 2026',title:'Консультация невролога',desc:'Мигрень. Назначен Суматриптан 50мг.'},{date:'15 янв 2026',title:'Общий анализ крови',desc:'Гемоглобин 142, норма.'},{date:'20 дек 2025',title:'Консультация терапевта',desc:'ОРВИ. Больничный 7 дней.'},{date:'5 ноя 2025',title:'ЭКГ',desc:'Синусовый ритм, норма.'}]},
+  'p2':{name:'Мария Сидорова',dob:'22.07.1997',age:'28 лет',blood:'B(III) Rh-',height:'165 см',weight:'57 кг',allergy:'Нет',chronic:'ОРВИ (повторное)',phone:'+7 (916) 234-56-78',email:'sidorova@mail.ru',hist:[{date:'15 фев 2026',title:'Консультация терапевта',desc:'ОРВИ. Назначен Амоксициллин.'},{date:'3 янв 2026',title:'Общий анализ мочи',desc:'Без патологий.'},{date:'10 ноя 2025',title:'Флюорография',desc:'Патологий не выявлено.'}]},
+  'p3':{name:'Олег Петров',dob:'11.04.1971',age:'54 лет',blood:'0(I) Rh+',height:'182 см',weight:'98 кг',allergy:'Аспирин',chronic:'Сахарный диабет II типа',phone:'+7 (903) 345-67-89',email:'petrov@mail.ru',hist:[{date:'20 янв 2026',title:'Контроль сахара крови',desc:'Глюкоза 7.8 ммоль/л, скорректирована доза Метформина.'},{date:'5 дек 2025',title:'Консультация эндокринолога',desc:'Диабет компенсирован. Рекомендована диета.'},{date:'14 окт 2025',title:'ЭКГ',desc:'Умеренные изменения, наблюдение.'}]},
+  'p4':{name:'Светлана Ким',dob:'30.09.1983',age:'42 лет',blood:'A(II) Rh-',height:'170 см',weight:'63 кг',allergy:'Ибупрофен',chronic:'Хроническая мигрень',phone:'+7 (926) 456-78-90',email:'kim@mail.ru',hist:[{date:'18 фев 2026',title:'Консультация невролога',desc:'Мигрень с аурой. Назначен Топирамат.'},{date:'2 фев 2026',title:'МРТ головного мозга',desc:'Патологий не выявлено.'},{date:'15 дек 2025',title:'Консультация терапевта',desc:'Повышенное АД 145/90. Рекомендован Лизиноприл.'}]}
+};
+var PATIENTS=[{id:'p1',name:'Иван Иванов',age:37,last:'10 фев 2026',dx:'Гипертония I ст.'},{id:'p2',name:'Мария Сидорова',age:28,last:'15 фев 2026',dx:'ОРВИ'},{id:'p3',name:'Олег Петров',age:54,last:'20 янв 2026',dx:'Диабет II типа'},{id:'p4',name:'Светлана Ким',age:42,last:'18 фев 2026',dx:'Мигрень'}];
+
+function dbLoad(){try{var r=localStorage.getItem(DBK);return r?JSON.parse(r):null}catch(e){return null}}
+function dbSave(){try{localStorage.setItem(DBK,JSON.stringify(DB))}catch(e){}}
+function dbInit(){
+  var ex=dbLoad();
+  if(ex&&ex.v===3)return ex;
+  var db={v:3,appts:[
+    {id:'a1',pid:'p1',pname:'Иван Иванов',did:1,dname:'Анна Петрова',spec:'Терапевт',date:'2026-02-25',time:'10:00',status:'confirmed',reason:'Общая консультация',ts:Date.now()-864e5*3},
+    {id:'a2',pid:'p1',pname:'Иван Иванов',did:2,dname:'Михаил Соколов',spec:'Кардиолог',date:'2026-03-03',time:'14:30',status:'pending',reason:'Повышенное давление',ts:Date.now()-864e5*2},
+    {id:'a3',pid:'p1',pname:'Иван Иванов',did:3,dname:'Елена Воронова',spec:'Невролог',date:'2026-02-10',time:'11:00',status:'done',reason:'Мигрень',ts:Date.now()-864e5*10},
+    {id:'a4',pid:'p2',pname:'Мария Сидорова',did:1,dname:'Анна Петрова',spec:'Терапевт',date:'2026-02-26',time:'12:00',status:'pending',reason:'Простуда',ts:Date.now()-864e5},
+    {id:'a5',pid:'p3',pname:'Олег Петров',did:1,dname:'Анна Петрова',spec:'Кардиолог',date:'2026-02-28',time:'09:30',status:'confirmed',reason:'ЭКГ контроль',ts:Date.now()-864e5*2}
+  ],msgs:{'p1-1':[{f:'d',t:'Здравствуйте! Как вы себя чувствуете?',time:'09:30'},{f:'p',t:'Добрый день! Немного болит голова.',time:'09:32'},{f:'d',t:'Давление измеряли? Сколько показывает?',time:'09:33'},{f:'p',t:'135/85, немного повышено.',time:'09:35'},{f:'d',t:'Умеренное повышение. Выпейте воды и отдохните.',time:'09:36'}],'p1-2':[{f:'d',t:'Получил ваши анализы ЭКГ.',time:'14:00'},{f:'p',t:'Всё в порядке?',time:'14:05'},{f:'d',t:'В целом хорошо. Обсудим на приёме 3 марта.',time:'14:07'}],'p1-3':[{f:'d',t:'Как самочувствие после курса от мигрени?',time:'11:00'},{f:'p',t:'Намного лучше, спасибо!',time:'11:20'}]}};
+  localStorage.setItem(DBK,JSON.stringify(db));
+  return db;
+}
+var DB=dbInit();
+var U=null,ROLE='patient',SDOC=null,STIME=null,ACID='p1-1',SPF='Все',APF='all',PA=null;
+
+function selRole(r){ROLE=r;var t=document.querySelectorAll('.rtab');t[0].classList.toggle('on',r==='patient');t[1].classList.toggle('on',r==='doctor');document.getElementById('sg').style.display=r==='doctor'?'block':'none'}
+function dlogin(r){ROLE=r;document.getElementById('an').value=r==='patient'?'Иван Иванов':'Анна Петрова';selRole(r);login()}
+function login(){
+  var name=(document.getElementById('an').value||'').trim()||(ROLE==='patient'?'Пациент':'Врач');
+  var spec=ROLE==='doctor'?document.getElementById('aspec').value:null;
+  var parts=name.split(' '),ini='';
+  for(var i=0;i<Math.min(2,parts.length);i++)if(parts[i])ini+=parts[i][0].toUpperCase();
+  var uid; if(ROLE==='patient'){uid='p1';}else{var dm=null;for(var j=0;j<DOCS.length;j++)if(DOCS[j].name===name){dm=DOCS[j];break}uid=dm?dm.id:1;}
+  U={name:name,role:ROLE,spec:spec,ini:ini,uid:uid};
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').classList.add('on');
+  initApp();
+}
+function logout(){document.getElementById('auth').style.display='flex';document.getElementById('app').classList.remove('on');U=null}
+
+function initApp(){
+  document.getElementById('hav').textContent=U.ini;
+  document.getElementById('hname').textContent=U.name;
+  document.getElementById('hrole').textContent=U.role==='patient'?'Пациент':U.spec;
+  var pages=U.role==='patient'?[['dash','Главная'],['docs','Врачи'],['appts','Приёмы'],['chat','Чат','2'],['card','Карточка']]:[['dash','Главная'],['appts','Приёмы'],['chat','Чат'],['card','Пациенты']];
+  var h='';for(var i=0;i<pages.length;i++){var p=pages[i];h+='<button class="nb" id="nb-'+p[0]+'" onclick="goPage(\''+p[0]+'\')">'+(p[1])+(p[2]?'<span class="nbadge">'+p[2]+'</span>':'')+'</button>'}
+  document.getElementById('hnav').innerHTML=h;
+  U._init=false;buildDash();buildDocs();buildAppts();buildChat();buildCard();U._init=true;goPage('dash');
+  setInterval(function(){if(U)document.getElementById('dbbar').textContent='  MedConnect DB — '+DB.appts.length+' записей, '+Object.keys(DB.msgs).length+' диалогов';},4000);
+}
+
+function goPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on')});
+  var pg=document.getElementById('pg-'+id),nb=document.getElementById('nb-'+id);
+  if(pg)pg.classList.add('on');if(nb)nb.classList.add('on');
+  if(id==="chat"&&U._init)buildChat();
+  if(id==="card"&&U._init)buildCard();
+  if(id==="appts"&&U._init)buildAppts();
+  if(id==="dash"&&U._init)buildDash();
+}
+
+// DASHBOARD
+function buildDash(){
+  var isDoc=U.role==='doctor';
+  document.getElementById('dtitle').textContent='Добрый день, '+U.name.split(' ')[0]+'!';
+  document.getElementById('dsub').textContent=isDoc?'Ваша рабочая панель':'Ваша панель здоровья';
+  var my=getMyAppts();
+  var pend=isDoc?DB.appts.filter(function(a){return a.status==='pending'&&a.did===U.uid}).length:my.filter(function(a){return a.status==='pending'}).length;
+  var active=my.filter(function(a){return a.status==='confirmed'||a.status==='pending'});
+  var stats=isDoc?[['&#128197;',DB.appts.length+'','Всего записей'],['&#9203;',pend+'','Ожидают подтверждения'],['&#128172;',Object.keys(DB.msgs).length+'','Диалогов в чате']]:[['&#128197;',active.length+'','Активных приёмов'],['&#9203;',pend+'','Ожидают'],['&#10084;','Норм.','Самочувствие']];
+  var h='';for(var i=0;i<stats.length;i++)h+='<div class="scard"><div class="sico">'+stats[i][0]+'</div><div class="sval">'+stats[i][1]+'</div><div class="slbl">'+stats[i][2]+'</div></div>';
+  document.getElementById('dstats').innerHTML=h;
+  var up=active.slice(0,3);
+  var ah=up.length?up.map(function(a){return aRow(a,false)}).join(''):'<div style="color:var(--text2);font-size:13px;padding:12px 0">Нет предстоящих приёмов</div>';
+  var btn=U.role==='patient'?'<div style="margin-top:12px"><button class="btn-bk" onclick="goPage(\'docs\')">+ Записаться к врачу</button></div>':'';
+  document.getElementById('dcont').innerHTML='<div class="card"><div class="slabel" style="margin-bottom:12px">Ближайшие приёмы</div>'+ah+btn+'</div>';
+}
+
+// DOCTORS
+function buildDocs(){
+  var specs=['Все'];DOCS.forEach(function(d){if(specs.indexOf(d.spec)<0)specs.push(d.spec)});
+  var h='';specs.forEach(function(s){h+='<button class="ftab'+(s==='Все'?' on':'')+'" data-s="'+s+'" onclick="filterSpec(this)">'+s+'</button>'});
+  document.getElementById('specf').innerHTML=h;renderDocs();
+}
+function filterSpec(btn){SPF=btn.getAttribute('data-s');document.querySelectorAll('#specf .ftab').forEach(function(b){b.classList.remove('on')});btn.classList.add('on');renderDocs()}
+function renderDocs(){
+  var list=SPF==='Все'?DOCS:DOCS.filter(function(d){return d.spec===SPF});
+  var h='';list.forEach(function(d){
+    var onl=d.online?'<span class="odot"></span><span style="color:var(--a2)">онлайн</span>':'<span style="width:6px;height:6px;border-radius:50%;background:#ccc;display:inline-block;margin-right:3px"></span><span style="color:var(--text2)">офлайн</span>';
+    var tags=d.tags.map(function(t){return'<span class="tag">'+t+'</span>'}).join('');
+    h+='<div class="dcard"><div class="dhead"><div class="dav">'+d.ini+'</div><div style="flex:1"><div class="dname">'+d.name+'</div><div class="dspec">'+d.spec+' &middot; '+d.exp+'</div><div class="drat">&#9733; '+d.rat+' &middot; '+d.price+'</div></div><div class="donl">'+onl+'</div></div><div class="dtags">'+tags+'</div><button class="btn-bk" onclick="openBook('+d.id+')">Записаться</button></div>';
+  });
+  document.getElementById('doclist').innerHTML=h;
+}
+
+// APPOINTMENTS
+function getMyAppts(){return U.role==='patient'?DB.appts.filter(function(a){return a.pid===U.uid}):DB.appts.filter(function(a){return a.did===U.uid})}
+function buildAppts(){
+  document.getElementById('aptitle').textContent=U.role==='doctor'?'Расписание приёмов':'Мои приёмы';
+  document.getElementById('apsub').textContent=U.role==='doctor'?'Управляйте записями пациентов':'Ваши записи к врачам';
+  var fs=[['all','Все'],['pending','Ожидают'],['confirmed','Подтверждённые'],['done','Завершённые'],['rejected','Отклонённые'],['cancelled','Отменённые']];
+  var h='';fs.forEach(function(f){h+='<button class="ftab'+(APF===f[0]?' on':'')+'" data-f="'+f[0]+'" onclick="filterAppts(this)">'+f[1]+'</button>'});
+  document.getElementById('apfilter').innerHTML=h;renderAppts();
+}
+function filterAppts(btn){APF=btn.getAttribute('data-f');document.querySelectorAll('#apfilter .ftab').forEach(function(b){b.classList.remove('on')});btn.classList.add('on');renderAppts()}
+function renderAppts(){
+  var all=getMyAppts();
+  var list=APF==='all'?all:all.filter(function(a){return a.status===APF});
+  list.sort(function(a,b){var o={pending:0,confirmed:1,done:2,rejected:3,cancelled:4};return(o[a.status]||5)-(o[b.status]||5)});
+  if(!list.length){document.getElementById('aplist').innerHTML='<div class="empty"><div class="empty-ico">&#128197;</div><div class="empty-t">Записей нет</div></div>';return}
+  document.getElementById('aplist').innerHTML=list.map(function(a){return aRow(a,true)}).join('');
+}
+function aRow(a,btns){
+  var d=new Date(a.date+'T00:00:00'),day=d.getDate(),mon=d.toLocaleString('ru',{month:'short'});
+  var dc=a.status==='done'?'gr':a.status==='rejected'||a.status==='cancelled'?'r':'g';
+  var badges={confirmed:'<span class="badge b-conf">Подтверждён</span>',pending:'<span class="badge b-pend">Ожидает</span>',done:'<span class="badge b-done">Завершён</span>',rejected:'<span class="badge b-rej">Отклонён</span>',cancelled:'<span class="badge b-can">Отменён</span>'};
+  var note='';
+  if(a.status==='rejected')note='<div class="anote" style="color:var(--danger)">Приём отклонён врачом</div>';
+  if(a.status==='cancelled')note='<div class="anote" style="color:var(--text2)">Запись отменена пациентом</div>';
+  var bh='';
+  if(btns){
+    if(U.role==='patient'){
+      if(a.status==='confirmed')bh+='<button class="abtn abtn-green" onclick="goPage(\'chat\')">Чат</button><button class="abtn abtn-grey" onclick="askAction(\'cancel\',\''+a.id+'\')">Отменить</button>';
+      if(a.status==='pending')bh+='<button class="abtn abtn-grey" onclick="askAction(\'cancel\',\''+a.id+'\')">Отменить</button>';
+    }else{
+      if(a.status==='pending')bh+='<button class="abtn abtn-green" onclick="askAction(\'confirm\',\''+a.id+'\')">Подтвердить</button><button class="abtn abtn-red" onclick="askAction(\'reject\',\''+a.id+'\')">Отклонить</button>';
+      if(a.status==='confirmed')bh+='<button class="abtn abtn-green" onclick="goPage(\'chat\')">Чат</button><button class="abtn abtn-done" onclick="askAction(\'done\',\''+a.id+'\')">Завершить</button><button class="abtn abtn-red" onclick="askAction(\'reject\',\''+a.id+'\')">Отклонить</button>';
+    }
+  }
+  var label=U.role==='patient'?a.dname:a.pname;
+  return'<div class="ai'+(a.status==='rejected'||a.status==='cancelled'?' dim':'')+'"><div class="adate '+dc+'"><div class="aday '+dc+'">'+day+'</div><div class="amon '+dc+'">'+mon+'</div></div><div class="ainfo"><div class="adoc">'+label+'</div><div class="aspec">'+a.spec+(U.role==='doctor'?' &middot; '+a.pname:'')+'</div><div class="atime">'+a.time+' &middot; '+a.reason+'</div>'+note+'</div>'+(badges[a.status]||'')+(bh?'<div class="abtns">'+bh+'</div>':'')+'</div>';
+}
+
+function findA(id){for(var i=0;i<DB.appts.length;i++)if(DB.appts[i].id===id)return i;return-1}
+function setStatus(id,st){var i=findA(id);if(i<0)return;DB.appts[i].status=st;dbSave();renderAppts();buildDash()}
+
+function askAction(type,id){
+  var i=findA(id);if(i<0)return;var a=DB.appts[i];
+  var configs={
+    confirm:{ico:'&#9989;',title:'Подтвердить приём?',sub:'Пациент: '+a.pname+'\n'+a.date+' в '+a.time,btn:'Подтвердить',cls:'btn-success',fn:function(){setStatus(id,'confirmed');toast('Приём подтверждён','green')}},
+    reject:{ico:'&#10060;',title:'Отклонить запись?',sub:'Пациент: '+a.pname+'\n'+a.date+' в '+a.time+'\n\nПациент будет уведомлён.',btn:'Отклонить',cls:'btn-danger',fn:function(){setStatus(id,'rejected');toast('Запись отклонена','red')}},
+    cancel:{ico:'&#128197;',title:'Отменить запись?',sub:'Врач: '+a.dname+'\n'+a.date+' в '+a.time,btn:'Отменить',cls:'btn-danger',fn:function(){setStatus(id,'cancelled');toast('Запись отменена','orange')}},
+    done:{ico:'&#127973;',title:'Завершить приём?',sub:'Пациент: '+a.pname+'\n'+a.date+' в '+a.time,btn:'Завершить',cls:'btn-success',fn:function(){setStatus(id,'done');toast('Приём завершён','green')}}
+  };
+  var c=configs[type];if(!c)return;
+  PA=c.fn;
+  document.getElementById('cico').innerHTML=c.ico;
+  document.getElementById('ctit').textContent=c.title;
+  document.getElementById('csub2').textContent=c.sub;
+  var cb=document.getElementById('cbtn');
+  cb.textContent=c.btn;cb.className=c.cls;
+  document.getElementById('cmodal').classList.add('on');
+}
+function doAction(){closeM('cmodal');if(PA){PA();PA=null}}
+
+// BOOKING
+function openBook(did){
+  SDOC=null;for(var i=0;i<DOCS.length;i++)if(DOCS[i].id===did){SDOC=DOCS[i];break}
+  if(!SDOC)return;STIME=null;
+  document.getElementById('bdocinfo').innerHTML='<div class="av" style="width:40px;height:40px">'+SDOC.ini+'</div><div><div style="font-weight:600">'+SDOC.name+'</div><div style="font-size:12px;color:var(--text2)">'+SDOC.spec+' &middot; '+SDOC.price+'</div></div>';
+  var today=new Date().toISOString().split('T')[0];
+  document.getElementById('bdate').value=today;document.getElementById('bdate').min=today;
+  document.getElementById('breason').value='';renderSlots();
+  document.getElementById('bmodal').classList.add('on');
+}
+function renderSlots(){
+  var date=document.getElementById('bdate').value,taken={};
+  DB.appts.forEach(function(a){if(a.did===SDOC.id&&a.date===date&&(a.status==='confirmed'||a.status==='pending'))taken[a.time]=1});
+  STIME=null;
+  document.getElementById('tslots').innerHTML=TIMES.map(function(t){return taken[t]?'<div class="ts taken">'+t+'</div>':'<div class="ts" onclick="pickTime(this,\''+t+'\')">'+t+'</div>'}).join('');
+}
+function pickTime(el,t){if(el.classList.contains('taken'))return;STIME=t;document.querySelectorAll('.ts').forEach(function(s){s.classList.remove('on')});el.classList.add('on')}
+function closeM(id){document.getElementById(id).classList.remove('on')}
+function confirmBook(){
+  if(!STIME){toast('Выберите время','orange');return}
+  var date=document.getElementById('bdate').value;
+  var reason=(document.getElementById('breason').value||'').trim()||'Консультация';
+  DB.appts.unshift({id:'a'+Date.now(),pid:U.uid,pname:U.name,did:SDOC.id,dname:SDOC.name,spec:SDOC.spec,date:date,time:STIME,status:'pending',reason:reason,ts:Date.now()});
+  dbSave();closeM('bmodal');buildDash();goPage('appts');
+  toast('Запись к '+SDOC.name+' отправлена — ожидайте подтверждения','green');
+}
+
+// CHAT
+function getChatContacts(){
+  if(U.role==='patient'){
+    var seen={},contacts=[];
+    DB.appts.filter(function(a){return a.pid===U.uid}).forEach(function(a){
+      if(!seen[a.did]){seen[a.did]=1;var doc=DOCS.find(function(d){return d.id===a.did});if(doc)contacts.push({id:'p1-'+a.did,name:doc.name,ini:doc.ini});}
+    });
+    if(!contacts.length)contacts=DOCS.slice(0,3).map(function(d){return{id:'p1-'+d.id,name:d.name,ini:d.ini}});
+    return contacts;
+  }else{
+    var seen2={},contacts2=[];
+    DB.appts.filter(function(a){return a.did===U.uid}).forEach(function(a){
+      if(!seen2[a.pid]){seen2[a.pid]=1;var pt=PATIENTS.find(function(p){return p.id===a.pid});if(pt){var ini=pt.name.split(' ').map(function(w){return w[0]}).join('');contacts2.push({id:a.pid+'-'+U.uid,name:pt.name,ini:ini});}}
+    });
+    if(!contacts2.length)contacts2=PATIENTS.slice(0,3).map(function(p){var ini=p.name.split(' ').map(function(w){return w[0]}).join('');return{id:p.id+'-1',name:p.name,ini:ini}});
+    return contacts2;
+  }
+}
+function buildChat(){
+  var contacts=getChatContacts();
+  var h='';contacts.forEach(function(c,i){
+    var ml=DB.msgs[c.id]||[],last=ml.length?ml[ml.length-1].t:'Нет сообщений';
+    h+='<div class="cc'+(i===0?' on':'')+'" onclick="openChat(\''+c.id+'\',\''+c.name+'\',\''+c.ini+'\')" id="cc'+i+'"><div class="av" style="width:34px;height:34px;font-size:12px">'+c.ini+'</div><div class="cinfo"><div class="cname">'+c.name+'</div><div class="cmsg">'+last+'</div></div>'+(i<2?'<div class="udot"></div>':'')+'</div>';
+  });
+  document.getElementById('clist').innerHTML=h;
+  openChat(contacts[0].id,contacts[0].name,contacts[0].ini);
+}
+function openChat(cid,name,ini){
+  ACID=cid;
+  document.getElementById('cpname').textContent=name;document.getElementById('cpav').textContent=ini;
+  document.querySelectorAll('.cc').forEach(function(c){c.classList.remove('on')});
+  document.querySelectorAll('.cc').forEach(function(c){if(c.getAttribute('onclick')&&c.getAttribute('onclick').indexOf("'"+cid+"'")>=0)c.classList.add('on')});
+  var ml=DB.msgs[cid]||[],h='';
+  ml.forEach(function(m){
+    var isMe=(U.role==='patient'&&m.f==='p')||(U.role==='doctor'&&m.f==='d');
+    var cls=isMe?'me':'them';var snd=!isMe?'<div class="msnd">'+name+'</div>':'';
+    h+='<div class="msg '+cls+'">'+snd+'<div class="mb">'+eh(m.t)+'</div><div class="mt">'+m.time+'</div></div>';
+  });
+  var c=document.getElementById('msgs');
+  c.innerHTML=h||'<div style="text-align:center;color:var(--text2);padding:36px;font-size:13px">Начните диалог</div>';
+  c.scrollTop=c.scrollHeight;
+}
+function sendMsg(){
+  var inp=document.getElementById('ci'),txt=(inp.value||'').trim();if(!txt)return;
+  var now=new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+  inp.value='';inp.style.height='auto';
+  if(!DB.msgs[ACID])DB.msgs[ACID]=[];
+  var fk=U.role==='patient'?'p':'d';
+  DB.msgs[ACID].push({f:fk,t:txt,time:now});dbSave();
+  var c=document.getElementById('msgs');
+  c.innerHTML+='<div class="msg me" style="animation:slideR .2s ease"><div class="mb">'+eh(txt)+'</div><div class="mt">'+now+'</div></div>';
+  c.scrollTop=c.scrollHeight;
+
+}
+
+// CARD
+function buildCard(){
+  if(U.role==='doctor'){
+    document.getElementById('ctitle').textContent='Пациенты';
+    document.getElementById('csub').textContent='Список ваших пациентов';
+    var h='';PATIENTS.forEach(function(p){
+      var pend=DB.appts.filter(function(a){return a.pname===p.name&&a.status==='pending'}).length;
+      var pbadge=pend?'&nbsp;<span style="background:var(--warn);color:#fff;font-size:10px;padding:2px 6px;border-radius:10px">'+pend+' ожид.</span>':'';
+      h+='<div class="prow"><div class="av">'+p.name[0]+'</div><div style="flex:1"><div style="font-weight:600">'+p.name+pbadge+'</div><div style="font-size:12px;color:var(--text2)">'+p.age+' лет &middot; '+p.dx+'</div><div style="font-size:11px;color:var(--text2);margin-top:1px">Визит: '+p.last+'</div></div><button class="abtn abtn-green" onclick="showPCard(\''+p.id+'\')">Карта</button><button class="abtn" style="background:transparent;border:1px solid var(--accent);color:var(--accent)" onclick="goPage(\'chat\')">Чат</button></div>';
+    });
+    document.getElementById('ccont').innerHTML=h;
+  }else{
+    document.getElementById('ctitle').textContent='Моя карточка';
+    document.getElementById('csub').textContent='Медицинская карточка пациента';
+    showPCard();
+  }
+}
+var CURPID='p1';
+function showPCard(pid){
+  var id=pid||(U.role==='patient'?U.uid:'p1');
+  CURPID=id;
+  var pt=PATIENTS.find(function(x){return x.id===id})||PATIENTS[0];
+  if(U.role==='doctor'){document.getElementById('ctitle').textContent='Карточка пациента';document.getElementById('csub').innerHTML=pt.name+' &middot; ID #'+id+'&nbsp;<button class="abtn abtn-grey" style="font-size:11px;padding:3px 9px" onclick="buildCard()">&#8592; Назад</button>';}
+  var p=PCARDS[id]||PCARDS['p1'];
+  var hist=p.hist.map(function(h){return'<div class="tli"><div class="tldot"></div><div class="tldate">'+h.date+'</div><div class="tltitle">'+h.title+'</div><div class="tldesc">'+h.desc+'</div></div>'}).join('');
+  document.getElementById('ccont').innerHTML='<div class="g2"><div><div class="card" style="margin-bottom:14px"><div class="slabel">Личные данные</div><div class="igrid"><div class="ii"><div class="il">Имя</div><div class="iv">'+p.name+'</div></div><div class="ii"><div class="il">Дата рождения</div><div class="iv">'+p.dob+'</div></div><div class="ii"><div class="il">Возраст</div><div class="iv">'+p.age+'</div></div><div class="ii"><div class="il">Группа крови</div><div class="iv" style="color:var(--danger)">'+p.blood+'</div></div><div class="ii"><div class="il">Рост</div><div class="iv">'+p.height+'</div></div><div class="ii"><div class="il">Вес</div><div class="iv">'+p.weight+'</div></div></div></div><div class="card" style="margin-bottom:14px"><div class="slabel">Здоровье</div><div class="igrid"><div class="ii" style="border-left:3px solid var(--danger)"><div class="il">&#9888; Аллергии</div><div class="iv" style="color:var(--danger)">'+p.allergy+'</div></div><div class="ii" style="border-left:3px solid var(--warn)"><div class="il">Хронические</div><div class="iv">'+p.chronic+'</div></div></div></div><div class="card"><div class="slabel">Контакты</div><div class="igrid"><div class="ii"><div class="il">Телефон</div><div class="iv" style="font-size:12px">'+p.phone+'</div></div><div class="ii"><div class="il">Email</div><div class="iv" style="font-size:12px">'+p.email+'</div></div></div></div></div><div class="card"><div class="slabel">История болезней</div><div class="tl">'+hist+'</div>'+(U.role==='doctor'?'<div style="margin-top:14px"><button class="btn-bk" onclick="addHist()">+ Добавить запись</button></div>':'')+'</div></div>';
+}
+function addHist(){var t=prompt('Название:');if(!t)return;var d=prompt('Описание:');if(!d)return;var dt=new Date().toLocaleDateString('ru',{day:'numeric',month:'short',year:'numeric'});var pc=PCARDS[CURPID]||PCARDS['p1'];pc.hist.unshift({date:dt,title:t,desc:d});showPCard(CURPID);toast('Запись добавлена в карту','green')}
+
+function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function toast(msg,type){var o=document.querySelector('.toast');if(o)o.remove();var t=document.createElement('div');t.className='toast '+(type||'green');t.innerHTML=(type==='red'?'&#10060;':type==='orange'?'&#9888;':'&#10003;')+' '+eh(msg);document.body.appendChild(t);setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},400)},3500)}
+
+document.getElementById('bmodal').addEventListener('click',function(e){if(e.target===this)closeM('bmodal')});
+document.getElementById('cmodal').addEventListener('click',function(e){if(e.target===this)closeM('cmodal')});
+</script>
+</body>
+</html>
