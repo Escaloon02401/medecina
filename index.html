@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -626,6 +625,94 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI'
   font-weight: 900 !important;
   letter-spacing: -.04em !important;
 }
+
+/* ===== PAGE TRANSITIONS ===== */
+.page { display:none; }
+.page.on { display:block; }
+.page-in {
+  animation: pageIn .35s cubic-bezier(.16,1,.3,1) forwards;
+}
+.page-out {
+  animation: pageOut .22s cubic-bezier(.4,0,1,1) forwards;
+  pointer-events:none;
+}
+@keyframes pageIn {
+  from { opacity:0; transform:translateY(18px) scale(.99); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes pageOut {
+  from { opacity:1; transform:translateY(0) scale(1); }
+  to   { opacity:0; transform:translateY(-10px) scale(.99); }
+}
+
+/* NAV active indicator animation */
+.nb.on {
+  position:relative;
+}
+.nb.on::after {
+  content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+  width:60%;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  border-radius:2px;
+  animation:navUnderline .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes navUnderline {
+  from{width:0;opacity:0}to{width:60%;opacity:1}
+}
+
+/* ===== HEALTH CHART ===== */
+.chart-wrap {
+  background:var(--card);border-radius:var(--r);padding:24px;
+  border:1px solid var(--border);margin-top:18px;
+  position:relative;overflow:hidden;
+}
+.chart-wrap::before {
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 0%, rgba(59,130,246,0.05) 0%, transparent 60%);
+  pointer-events:none;
+}
+.chart-header {
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;
+}
+.chart-title {
+  font-size:14px;font-weight:700;letter-spacing:-.02em;
+}
+.chart-tabs {
+  display:flex;gap:4px;background:var(--bg2);padding:3px;border-radius:8px;
+}
+.chart-tab {
+  padding:4px 12px;border-radius:6px;border:none;background:transparent;
+  font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;
+  font-family:inherit;
+}
+.chart-tab.on {
+  background:var(--card2);color:var(--accent2);box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.chart-legend {
+  display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;
+}
+.legend-item {
+  display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);
+}
+.legend-dot {
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.chart-svg-wrap {
+  width:100%;overflow:hidden;border-radius:8px;
+}
+svg.health-chart {
+  width:100%;height:180px;display:block;
+  transition:all .4s ease;
+}
+.chart-tooltip {
+  position:absolute;background:var(--card2);border:1px solid var(--border2);
+  border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;
+  opacity:0;transition:opacity .15s;z-index:10;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);min-width:110px;
+}
+.chart-tooltip.show {opacity:1}
+.ct-label {font-weight:700;color:var(--text);margin-bottom:3px}
+.ct-val {color:var(--accent2);font-family:monospace}
 </style>
 </head>
 <body>
@@ -818,15 +905,26 @@ function initApp(){
   setInterval(function(){if(U)document.getElementById('dbbar').textContent='MedConnect DB — '+DB.appts.length+' записей · '+Object.keys(DB.msgs).length+' диалогов · Синхронизировано';},4000);
 }
 
+var _prevPage=null;
 function goPage(id){
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});
+  var prev=document.querySelector('.page.on');
+  if(prev&&prev.id!=='pg-'+id){
+    prev.classList.add('page-out');
+    setTimeout(function(){prev.classList.remove('on');prev.classList.remove('page-out');},220);
+  } else if(!prev){
+    // no current page
+  }
   document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on')});
   var pg=document.getElementById('pg-'+id),nb=document.getElementById('nb-'+id);
-  if(pg)pg.classList.add('on');if(nb)nb.classList.add('on');
-  if(id==="chat"&&U._init)buildChat();
-  if(id==="card"&&U._init)buildCard();
-  if(id==="appts"&&U._init)buildAppts();
-  if(id==="dash"&&U._init)buildDash();
+  if(nb)nb.classList.add('on');
+  setTimeout(function(){
+    if(pg){pg.classList.add('on');pg.classList.add('page-in');setTimeout(function(){pg.classList.remove('page-in');},350);}
+    if(id==="chat"&&U._init)buildChat();
+    if(id==="card"&&U._init)buildCard();
+    if(id==="appts"&&U._init)buildAppts();
+    if(id==="dash"&&U._init)buildDash();
+  }, prev&&prev.id!=='pg-'+id ? 180 : 0);
+  _prevPage=id;
 }
 
 // DASHBOARD
@@ -868,7 +966,8 @@ function buildDash(){
   }
   qaHtml+='</div>';
 
-  document.getElementById('dcont').innerHTML=qaHtml+'<div class="card-glow"><div class="slabel">Ближайшие приёмы</div>'+ah+btn+'</div>';
+  document.getElementById('dcont').innerHTML=qaHtml+'<div class="card-glow"><div class="slabel">Ближайшие приёмы</div>'+ah+btn+'</div>'+(U.role==='patient'?'<div class="chart-wrap" id="health-chart-wrap"><div class="chart-tooltip" id="chart-tip"></div><div class="chart-header"><span class="chart-title">📈 Показатели здоровья</span><div class="chart-tabs"><button class="chart-tab on" onclick="renderHealthChart(\'week\',this)">Неделя</button><button class="chart-tab" onclick="renderHealthChart(\'month\',this)">Месяц</button><button class="chart-tab" onclick="renderHealthChart(\'year\',this)">Год</button></div></div><div class="chart-legend"><div class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>Пульс (уд/мин)</div><div class="legend-item"><span class="legend-dot" style="background:#34d399"></span>Давление (верх.)</div><div class="legend-item"><span class="legend-dot" style="background:#f472b6"></span>Сахар (ммоль/л × 10)</div></div><div class="chart-svg-wrap" id="chart-svg-wrap"></div></div>':'');
+  if(U.role==='patient')setTimeout(function(){renderHealthChart('week',document.querySelector('.chart-tab.on'))},50);
 }
 
 // DOCTORS
@@ -1112,6 +1211,130 @@ function toast(msg,type){var o=document.querySelector('.toast');if(o)o.remove();
 
 document.getElementById('bmodal').addEventListener('click',function(e){if(e.target===this)closeM('bmodal')});
 document.getElementById('cmodal').addEventListener('click',function(e){if(e.target===this)closeM('cmodal')});
+
+// ===== HEALTH CHART =====
+var HEALTH_DATA = {
+  week: {
+    labels: ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'],
+    pulse:  [72, 78, 74, 80, 76, 68, 71],
+    bp:     [125,130,128,135,122,118,120],
+    sugar:  [52, 58, 55, 60, 54, 50, 53]
+  },
+  month: {
+    labels: ['1','5','10','15','20','25','сег'],
+    pulse:  [75, 72, 80, 77, 73, 69, 74],
+    bp:     [128,132,125,130,122,126,120],
+    sugar:  [54, 57, 60, 55, 52, 56, 53]
+  },
+  year: {
+    labels: ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'],
+    pulse:  [76,74,72,75,73,70,68,71,74,76,73,72],
+    bp:     [130,128,125,122,120,118,120,122,125,128,126,124],
+    sugar:  [56,55,53,52,50,51,52,54,55,56,54,53]
+  }
+};
+
+function renderHealthChart(period, btn) {
+  if(btn){document.querySelectorAll('.chart-tab').forEach(function(t){t.classList.remove('on')});btn.classList.add('on');}
+  var d = HEALTH_DATA[period];
+  var W = document.getElementById('chart-svg-wrap');
+  if(!W) return;
+  var width = W.offsetWidth || 600;
+  var height = 180;
+  var padL=40, padR=20, padT=16, padB=32;
+  var cW = width - padL - padR;
+  var cH = height - padT - padB;
+  var n = d.labels.length;
+
+  function xp(i){ return padL + (i/(n-1))*cW; }
+
+  // Normalize all series to 0-100 range for display
+  var allVals = d.pulse.concat(d.bp).concat(d.sugar);
+  var minV = Math.min.apply(null,allVals) - 10;
+  var maxV = Math.max.apply(null,allVals) + 10;
+  function yp(v){ return padT + cH - ((v-minV)/(maxV-minV))*cH; }
+
+  function makePath(arr, close){
+    var pts = arr.map(function(v,i){return xp(i)+','+yp(v)});
+    var d2 = 'M'+pts[0];
+    // smooth bezier
+    for(var i=1;i<pts.length;i++){
+      var x0=xp(i-1),y0=yp(arr[i-1]),x1=xp(i),y1=yp(arr[i]);
+      var cp1x=x0+(x1-x0)*0.5, cp2x=x0+(x1-x0)*0.5;
+      d2+=' C'+cp1x+','+y0+' '+cp2x+','+y1+' '+x1+','+y1;
+    }
+    if(close){
+      d2+=' L'+xp(n-1)+','+(padT+cH)+' L'+padL+','+(padT+cH)+' Z';
+    }
+    return d2;
+  }
+
+  var gridLines = '';
+  for(var g=0;g<5;g++){
+    var gy = padT + (g/4)*cH;
+    var gv = Math.round(maxV - (g/4)*(maxV-minV));
+    gridLines += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(padL+cW)+'" y2="'+gy+'" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>';
+    gridLines += '<text x="'+(padL-6)+'" y="'+(gy+4)+'" text-anchor="end" fill="#4a5a72" font-size="9">'+gv+'</text>';
+  }
+
+  var xLabels = '';
+  for(var i=0;i<n;i++){
+    xLabels += '<text x="'+xp(i)+'" y="'+(height-8)+'" text-anchor="middle" fill="#4a5a72" font-size="10">'+d.labels[i]+'</text>';
+  }
+
+  // Dot hover areas
+  var dots = '';
+  var series = [
+    {arr:d.pulse,  color:'#60a5fa', label:'Пульс',    unit:'уд/мин'},
+    {arr:d.bp,     color:'#34d399', label:'Давление', unit:'мм рт.ст.'},
+    {arr:d.sugar,  color:'#f472b6', label:'Сахар',    unit:'(×10)'}
+  ];
+  series.forEach(function(s){
+    s.arr.forEach(function(v,i){
+      dots += '<circle cx="'+xp(i)+'" cy="'+yp(v)+'" r="10" fill="transparent" data-label="'+s.label+'" data-val="'+v+'" data-unit="'+s.unit+'" data-x="'+xp(i)+'" data-y="'+yp(v)+'" class="chart-dot-hover"/>';
+      dots += '<circle cx="'+xp(i)+'" cy="'+yp(v)+'" r="3.5" fill="'+s.color+'" stroke="var(--bg2)" stroke-width="2" pointer-events="none"/>';
+    });
+  });
+
+  // Animated line paths
+  var lines = '';
+  series.forEach(function(s){
+    var len = (n-1)*Math.sqrt(Math.pow(cW/(n-1),2)+400);
+    lines += '<path d="'+makePath(s.arr,true)+'" fill="'+s.color+'" opacity=".08"/>';
+    lines += '<path d="'+makePath(s.arr,false)+'" fill="none" stroke="'+s.color+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:'+Math.round(len*2)+';stroke-dashoffset:'+Math.round(len*2)+';animation:drawLine 1.2s cubic-bezier(.4,0,.2,1) forwards"/>';
+  });
+
+  var svg = '<svg class="health-chart" viewBox="0 0 '+width+' '+height+'" xmlns="http://www.w3.org/2000/svg">'
+    + '<defs><style>@keyframes drawLine{to{stroke-dashoffset:0}}.chart-dot-hover:hover~circle{r:5}</style></defs>'
+    + gridLines + xLabels + lines + dots
+    + '</svg>';
+
+  W.innerHTML = svg;
+
+  // Tooltip
+  var tip = document.getElementById('chart-tip');
+  var wrap = document.getElementById('health-chart-wrap');
+  W.querySelectorAll('.chart-dot-hover').forEach(function(el){
+    el.addEventListener('mouseenter', function(e){
+      var label=this.getAttribute('data-label');
+      var val=this.getAttribute('data-val');
+      var unit=this.getAttribute('data-unit');
+      tip.innerHTML='<div class="ct-label">'+label+'</div><div class="ct-val">'+val+' '+unit+'</div>';
+      var rect=wrap.getBoundingClientRect();
+      var cx=parseFloat(this.getAttribute('data-x'));
+      var cy=parseFloat(this.getAttribute('data-y'));
+      var svgW=W.offsetWidth, svgH=W.offsetHeight;
+      var px=(cx/width)*svgW, py=(cy/height)*svgH;
+      var tipX = px + 14, tipY = py - 40;
+      if(tipX + 120 > svgW) tipX = px - 130;
+      if(tipY < 0) tipY = py + 14;
+      tip.style.left=tipX+'px';tip.style.top=(tipY+56)+'px';
+      tip.classList.add('show');
+    });
+    el.addEventListener('mouseleave',function(){tip.classList.remove('show')});
+  });
+}
+
 </script>
 </body>
 </html>
