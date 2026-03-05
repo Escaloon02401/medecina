@@ -1,1 +1,1117 @@
 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedConnect</title>
+
+<style>
+/* System fonts with beautiful rendering */
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+:root {
+  --bg: #0a0e17;
+  --bg2: #111827;
+  --bg3: #1a2235;
+  --card: #141c2e;
+  --card2: #1e2a40;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(99,179,237,0.2);
+  --text: #e8eef8;
+  --text2: #7a8ba8;
+  --text3: #4a5a72;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --accent3: #93c5fd;
+  --al: rgba(59,130,246,0.12);
+  --al2: rgba(59,130,246,0.06);
+  --green: #10b981;
+  --gl: rgba(16,185,129,0.12);
+  --danger: #ef4444;
+  --dl: rgba(239,68,68,0.12);
+  --warn: #f59e0b;
+  --wl: rgba(245,158,11,0.12);
+  --purple: #8b5cf6;
+  --pl: rgba(139,92,246,0.12);
+  --r: 16px;
+  --r2: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideR{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 12px rgba(59,130,246,0.3)}50%{box-shadow:0 0 24px rgba(59,130,246,0.6)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ===== AUTH ===== */
+#auth{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 60%),
+             radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.06) 0%, transparent 60%),
+             var(--bg);
+  padding:20px;position:relative;overflow:hidden;
+}
+#auth::before{
+  content:'';position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle, rgba(59,130,246,0.04) 0%, transparent 70%);
+  top:-200px;right:-200px;pointer-events:none;
+}
+#auth::after{
+  content:'';position:absolute;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%);
+  bottom:-150px;left:-150px;pointer-events:none;
+}
+.grid-bg{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+  background-size:60px 60px;pointer-events:none;
+}
+.ac{
+  background:var(--card);border-radius:24px;padding:44px 40px;width:100%;max-width:420px;
+  border:1px solid var(--border);
+  box-shadow:0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+  animation:fadeUp .6s cubic-bezier(.16,1,.3,1);position:relative;z-index:1;
+}
+.alo{text-align:center;margin-bottom:32px}
+.ali{
+  width:64px;height:64px;border-radius:20px;margin:0 auto 14px;
+  background:linear-gradient(135deg, var(--accent), var(--purple));
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  box-shadow:0 8px 24px rgba(59,130,246,0.35);
+  animation:float 3s ease-in-out infinite;
+}
+.alo h1{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em;font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--text)}
+.alo p{color:var(--text2);font-size:13px;margin-top:5px;font-weight:300}
+
+.rtabs{display:flex;gap:6px;margin-bottom:22px;background:var(--bg2);padding:5px;border-radius:12px}
+.rtab{
+  flex:1;padding:10px;border-radius:9px;border:none;background:transparent;
+  font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:13px;font-weight:500;cursor:pointer;
+  transition:all .2s;color:var(--text2);
+}
+.rtab.on{background:var(--card2);color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+
+.fg{margin-bottom:16px}
+.fg label{
+  display:block;font-size:10px;font-weight:600;color:var(--text2);margin-bottom:7px;
+  letter-spacing:.1em;text-transform:uppercase;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+.fi{
+  width:100%;padding:12px 15px;border-radius:10px;
+  border:1px solid var(--border);background:var(--bg2);
+  font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:14px;color:var(--text);
+  outline:none;transition:all .2s;
+}
+.fi:focus{border-color:var(--accent);background:var(--bg3);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.fi::placeholder{color:var(--text3)}
+.fsel{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8ba8' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;
+}
+.fsel option{background:var(--bg2)}
+
+.btn-p{
+  width:100%;padding:14px;border-radius:11px;border:none;
+  background:linear-gradient(135deg, var(--accent), #6366f1);
+  color:#fff;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-weight:600;font-size:15px;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 4px 16px rgba(59,130,246,0.3);letter-spacing:.01em;
+}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,0.45)}
+.btn-p:active{transform:translateY(0)}
+.dhint{text-align:center;font-size:12px;color:var(--text2);margin-top:14px}
+.dhint b{color:var(--accent2);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+/* ===== APP SHELL ===== */
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.on{display:flex}
+
+/* HEADER */
+.hdr{
+  background:rgba(20,28,46,0.9);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:0 28px;height:64px;
+  display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;
+}
+.hlogo{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--accent2),#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;letter-spacing:-.05em}
+.hnav{display:flex;gap:2px;margin-left:20px}
+.nb{
+  padding:7px 14px;border-radius:9px;border:none;background:transparent;
+  font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:13px;font-weight:500;
+  color:var(--text2);cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.nb:hover{background:var(--card2);color:var(--text)}
+.nb.on{background:var(--al);color:var(--accent2)}
+.nbadge{
+  background:var(--danger);color:#fff;font-size:10px;font-weight:700;
+  padding:2px 6px;border-radius:10px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+.huser{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.av{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg, var(--accent), var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:12px;flex-shrink:0;
+  font-family:'SF Mono','Cascadia Code','Consolas',monospace;border:2px solid rgba(255,255,255,0.1);
+}
+.uname{font-size:13px;font-weight:600;white-space:nowrap;color:var(--text)}
+.urole{font-size:11px;color:var(--text2);margin-top:1px}
+.btn-out{
+  padding:6px 13px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:12px;
+  color:var(--text2);cursor:pointer;transition:all .15s;
+}
+.btn-out:hover{border-color:var(--danger);color:var(--danger);background:var(--dl)}
+
+/* STATUS BAR */
+.dbbar{
+  background:linear-gradient(90deg, rgba(16,185,129,0.08), rgba(59,130,246,0.08));
+  border-bottom:1px solid rgba(16,185,129,0.15);
+  color:var(--green);font-size:11px;padding:5px 28px;
+  font-family:'SF Mono','Cascadia Code','Consolas',monospace;display:flex;align-items:center;gap:8px;
+}
+.dbbar::before{content:'●';animation:pulse 2s infinite;color:var(--green)}
+
+/* MAIN */
+.main{flex:1;padding:32px 28px;max-width:1120px;margin:0 auto;width:100%}
+.page{display:none;animation:fadeUp .3s cubic-bezier(.16,1,.3,1)}.page.on{display:block}
+.ptitle{font-size:30px;font-weight:900;margin-bottom:5px;letter-spacing:-.06em;color:var(--text);line-height:1.1}
+.psub{color:var(--text2);font-size:13px;margin-bottom:28px;font-weight:300}
+
+/* CARDS */
+.card{
+  background:var(--card);border-radius:var(--r);padding:24px;
+  border:1px solid var(--border);
+  box-shadow:0 4px 24px rgba(0,0,0,0.25);
+}
+.card-glow{
+  background:var(--card);border-radius:var(--r);padding:24px;
+  border:1px solid var(--border2);
+  box-shadow:0 4px 24px rgba(0,0,0,0.25), 0 0 0 1px rgba(59,130,246,0.05);
+}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* SECTION LABEL */
+.slabel{
+  font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:14px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+  display:flex;align-items:center;gap:8px;
+}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* STAT CARDS */
+.scard{
+  background:var(--card);border-radius:var(--r);padding:20px;
+  border:1px solid var(--border);transition:all .25s;position:relative;overflow:hidden;
+}
+.scard::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;
+  background:linear-gradient(135deg, rgba(59,130,246,0.05), transparent);
+}
+.scard:hover{border-color:var(--border2);transform:translateY(-2px)}
+.scard:hover::before{opacity:1}
+.sico{font-size:22px;margin-bottom:10px}
+.sval{font-size:38px;font-weight:900;color:var(--accent2);letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,var(--accent2),#e0f2fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.slbl{font-size:12px;color:var(--text2);margin-top:6px;font-weight:400}
+.stag{
+  position:absolute;top:14px;right:14px;font-size:10px;padding:3px 8px;
+  border-radius:20px;background:var(--al);color:var(--accent2);
+  font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+
+/* DOCTOR CARDS */
+.dcard{
+  background:var(--card);border-radius:var(--r);padding:20px;
+  border:1px solid var(--border);transition:all .25s;position:relative;overflow:hidden;
+}
+.dcard::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg, var(--accent), var(--purple));
+  transform:scaleX(0);transition:transform .3s;transform-origin:left;
+}
+.dcard:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.dcard:hover::after{transform:scaleX(1)}
+.dhead{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.dav{
+  width:54px;height:54px;border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg, #1e3a5f, #2d5a8e);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;color:#93c5fd;font-weight:700;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+  border:1px solid rgba(59,130,246,0.2);
+}
+.dname{font-weight:900;font-size:15px;letter-spacing:-.03em}
+.dspec{color:var(--accent2);font-size:12px;margin-top:3px;font-weight:500}
+.dexp{color:var(--text2);font-size:11px;margin-top:2px}
+.drat{
+  display:flex;align-items:center;gap:5px;margin-top:6px;
+}
+.drat-stars{color:#f59e0b;font-size:12px}
+.drat-num{font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:13px;font-weight:600;color:var(--text)}
+.dprice{
+  margin-left:auto;font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:14px;
+  font-weight:600;color:var(--green);white-space:nowrap;
+}
+.donl{display:flex;align-items:center;gap:4px;font-size:11px;margin-top:4px}
+.odot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
+.donl-on{color:var(--green)}
+.donl-off{color:var(--text3)}
+.dtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.tag{
+  padding:4px 10px;border-radius:20px;font-size:11px;
+  background:var(--al2);color:var(--accent3);font-weight:500;
+  border:1px solid rgba(59,130,246,0.15);
+}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.dcard-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+/* BUTTONS */
+.btn-bk{
+  flex:1;padding:10px 16px;border-radius:10px;border:none;
+  background:linear-gradient(135deg, var(--accent), #6366f1);
+  color:#fff;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-weight:600;font-size:13px;
+  cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(59,130,246,0.25);
+}
+.btn-bk:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,130,246,0.4)}
+.btn-bk:active{transform:translateY(0)}
+
+.abtn{
+  padding:7px 14px;border-radius:8px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;
+  font-weight:600;font-size:12px;cursor:pointer;transition:all .2s;
+  white-space:nowrap;border:none;
+}
+.abtn-green{background:linear-gradient(135deg,var(--accent),#6366f1);color:#fff}
+.abtn-green:hover{box-shadow:0 4px 12px rgba(59,130,246,0.35)}
+.abtn-red{background:transparent;border:1px solid rgba(239,68,68,0.4)!important;color:var(--danger)}
+.abtn-red:hover{background:var(--dl)}
+.abtn-grey{background:transparent;border:1px solid var(--border)!important;color:var(--text2)}
+.abtn-grey:hover{border-color:var(--danger)!important;color:var(--danger)}
+.abtn-done{background:var(--bg2);color:var(--text2);border:1px solid var(--border)!important}
+.abtn-done:hover{background:var(--bg3)}
+
+/* FILTER TABS */
+.ftabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.ftab{
+  padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;
+  font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:12px;font-weight:500;
+  color:var(--text2);cursor:pointer;transition:all .2s;
+}
+.ftab:hover{border-color:var(--border2);color:var(--accent3)}
+.ftab.on{background:var(--al);border-color:rgba(59,130,246,0.3);color:var(--accent2)}
+
+/* APPOINTMENTS */
+.ai{
+  display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;
+  border:1px solid var(--border);background:var(--card);margin-bottom:10px;
+  transition:all .2s;flex-wrap:wrap;position:relative;overflow:hidden;
+}
+.ai::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--accent);border-radius:3px 0 0 3px;
+}
+.ai.dim::before{background:var(--text3)}
+.ai:hover{border-color:var(--border2);background:var(--card2)}
+.ai.dim{opacity:.5}
+.adate{
+  text-align:center;min-width:52px;border-radius:10px;padding:9px 8px;flex-shrink:0;
+}
+.adate.g{background:var(--al)}
+.adate.r{background:var(--dl)}
+.adate.gr{background:rgba(255,255,255,0.04)}
+.aday{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em;font-size:22px;font-weight:700;line-height:1}
+.aday.g{color:var(--accent2)}.aday.r{color:var(--danger)}.aday.gr{color:var(--text3)}
+.amon{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.amon.g{color:var(--accent2)}.amon.r{color:var(--danger)}.amon.gr{color:var(--text3)}
+.ainfo{flex:1;min-width:140px}
+.adoc{font-weight:900;font-size:14px;letter-spacing:-.03em}
+.aspec{color:var(--accent2);font-size:12px;margin-top:2px}
+.atime{
+  font-size:11px;color:var(--text2);margin-top:4px;
+  font-family:'SF Mono','Cascadia Code','Consolas',monospace;display:flex;align-items:center;gap:4px;
+}
+.anote{font-size:11px;margin-top:3px}
+.abtns{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
+
+.badge{
+  padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;
+  white-space:nowrap;flex-shrink:0;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+.b-conf{background:var(--al);color:var(--accent2);border:1px solid rgba(59,130,246,0.2)}
+.b-pend{background:var(--wl);color:var(--warn);border:1px solid rgba(245,158,11,0.2)}
+.b-done{background:rgba(255,255,255,0.05);color:var(--text3)}
+.b-rej{background:var(--dl);color:var(--danger);border:1px solid rgba(239,68,68,0.2)}
+.b-can{background:rgba(255,255,255,0.05);color:var(--text3)}
+
+/* CHAT */
+.chat-wrap{
+  display:grid;grid-template-columns:280px 1fr;gap:16px;
+  height:calc(100vh - 200px);min-height:460px;
+}
+.csb{
+  background:var(--card);border-radius:var(--r);border:1px solid var(--border);
+  overflow:hidden;display:flex;flex-direction:column;
+}
+.csbh{
+  padding:16px 18px;border-bottom:1px solid var(--border);
+  font-weight:600;font-size:13px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em;
+  display:flex;align-items:center;gap:8px;
+}
+.csbh::before{content:'💬';font-size:14px}
+.clist{flex:1;overflow-y:auto}
+.cc{
+  padding:13px 16px;cursor:pointer;transition:all .15s;
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;
+}
+.cc:hover{background:var(--card2)}
+.cc.on{background:var(--al)}
+.cinfo{flex:1;min-width:0}
+.cname{font-weight:600;font-size:13px}
+.cmsg{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.udot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 2s infinite}
+.cmain{
+  background:var(--card);border-radius:var(--r);border:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.chead{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:11px;background:var(--card2);
+}
+.chn{font-weight:700;font-size:14px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em}
+.chs{font-size:11px;color:var(--green);margin-top:1px;display:flex;align-items:center;gap:4px}
+.gdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px;background:var(--bg2)}
+.msg{max-width:68%}
+.msg.me{align-self:flex-end}.msg.them{align-self:flex-start}
+.mb{padding:11px 15px;border-radius:14px;font-size:13px;line-height:1.55}
+.msg.me .mb{
+  background:linear-gradient(135deg, var(--accent), #6366f1);color:#fff;
+  border-bottom-right-radius:3px;
+}
+.msg.them .mb{
+  background:var(--card);color:var(--text);border-bottom-left-radius:3px;
+  border:1px solid var(--border);
+}
+.mt{font-size:10px;color:var(--text3);margin-top:3px;font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.msg.me .mt{text-align:right}
+.msnd{font-size:10px;font-weight:600;color:var(--accent2);margin-bottom:3px;font-family:'SF Mono','Cascadia Code','Consolas',monospace}
+.cwrap{
+  padding:14px 18px;border-top:1px solid var(--border);
+  display:flex;gap:9px;align-items:flex-end;background:var(--card2);
+}
+.ci{
+  flex:1;padding:11px 14px;border-radius:11px;border:1px solid var(--border);
+  background:var(--bg);font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:13px;
+  color:var(--text);outline:none;resize:none;min-height:44px;max-height:120px;
+  transition:border-color .2s;
+}
+.ci:focus{border-color:var(--accent);background:var(--bg2)}
+.ci::placeholder{color:var(--text3)}
+.btn-send{
+  width:44px;height:44px;border-radius:11px;border:none;
+  background:linear-gradient(135deg, var(--accent), #6366f1);
+  color:#fff;font-size:16px;cursor:pointer;transition:all .2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(59,130,246,0.3);
+}
+.btn-send:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(59,130,246,0.45)}
+
+/* PATIENT CARD / MEDICAL */
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.ii{
+  background:var(--bg2);border-radius:10px;padding:12px 14px;
+  border:1px solid var(--border);transition:all .2s;
+}
+.ii:hover{border-color:var(--border2);background:var(--bg3)}
+.il{
+  font-size:10px;color:var(--text2);margin-bottom:4px;
+  font-family:'SF Mono','Cascadia Code','Consolas',monospace;text-transform:uppercase;letter-spacing:.06em;
+}
+.iv{font-size:14px;font-weight:600;color:var(--text)}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:22px}
+.tl::before{
+  content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1px;
+  background:linear-gradient(to bottom, var(--accent), transparent);
+}
+.tli{position:relative;margin-bottom:18px}
+.tldot{
+  width:13px;height:13px;border-radius:50%;background:var(--accent);
+  position:absolute;left:-18px;top:4px;
+  box-shadow:0 0 0 3px rgba(59,130,246,0.2), 0 0 8px rgba(59,130,246,0.4);
+}
+.tldate{
+  font-size:10px;color:var(--text2);margin-bottom:3px;
+  font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+}
+.tltitle{font-weight:600;font-size:13px;color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em}
+.tldesc{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5}
+
+/* PATIENT ROW */
+.prow{
+  display:flex;align-items:center;gap:14px;padding:15px 18px;border-radius:12px;
+  border:1px solid var(--border);margin-bottom:10px;background:var(--card);
+  transition:all .2s;
+}
+.prow:hover{border-color:var(--border2);background:var(--card2)}
+
+/* MODALS */
+.moverlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(4px);z-index:1000;
+  align-items:center;justify-content:center;padding:20px;
+}
+.moverlay.on{display:flex;animation:fadeIn .2s ease}
+.modal{
+  background:var(--card);border-radius:20px;padding:30px;width:100%;max-width:460px;
+  border:1px solid var(--border);
+  box-shadow:0 32px 80px rgba(0,0,0,0.6);animation:fadeUp .3s cubic-bezier(.16,1,.3,1);
+}
+.mtitle{
+  font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em;font-size:20px;font-weight:700;margin-bottom:18px;
+  letter-spacing:-.3px;
+}
+.tslots{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}
+.ts{
+  padding:9px;border-radius:8px;border:1px solid var(--border);text-align:center;
+  font-size:12px;cursor:pointer;transition:all .15s;font-family:'SF Mono','Cascadia Code','Consolas',monospace;
+  color:var(--text2);background:var(--bg2);
+}
+.ts.taken{background:transparent;color:var(--text3);cursor:not-allowed;border-color:rgba(255,255,255,0.03)}
+.ts:not(.taken):hover{border-color:var(--border2);color:var(--accent2)}
+.ts.on{border-color:var(--accent);background:var(--al);color:var(--accent2);font-weight:600}
+.macts{display:flex;gap:9px;margin-top:18px}
+.btn-cx{
+  flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:transparent;
+  font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-weight:600;font-size:13px;
+  cursor:pointer;color:var(--text2);transition:all .2s;
+}
+.btn-cx:hover{border-color:var(--danger);color:var(--danger)}
+
+.cm{
+  background:var(--card);border-radius:20px;padding:28px;width:100%;max-width:380px;
+  border:1px solid var(--border);
+  box-shadow:0 32px 80px rgba(0,0,0,0.6);animation:fadeUp .3s cubic-bezier(.16,1,.3,1);
+  text-align:center;
+}
+.cm-ico{font-size:42px;margin-bottom:12px}
+.cm-title{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em;font-size:19px;font-weight:700;margin-bottom:8px}
+.cm-sub{font-size:13px;color:var(--text2);margin-bottom:22px;line-height:1.6;white-space:pre-line}
+.cm-acts{display:flex;gap:9px}
+.btn-danger{
+  flex:1;padding:12px;border-radius:10px;border:none;background:var(--danger);
+  color:#fff;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-weight:600;font-size:13px;cursor:pointer;
+  transition:all .2s;
+}
+.btn-danger:hover{background:#dc2626}
+.btn-success{
+  flex:1;padding:12px;border-radius:10px;border:none;
+  background:linear-gradient(135deg, var(--accent), #6366f1);
+  color:#fff;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-weight:600;font-size:13px;cursor:pointer;
+  transition:all .2s;
+}
+.btn-success:hover{box-shadow:0 4px 16px rgba(59,130,246,0.4)}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;color:#fff;padding:13px 18px;border-radius:12px;
+  font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);
+  z-index:9999;animation:fadeUp .3s cubic-bezier(.16,1,.3,1);
+  display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+}
+.toast.green{background:rgba(16,185,129,0.9)}
+.toast.red{background:rgba(239,68,68,0.9)}
+.toast.orange{background:rgba(245,158,11,0.9)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:52px 20px;color:var(--text2)}
+.empty-ico{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty-t{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:900;letter-spacing:-.04em}
+
+/* WELCOME BANNER */
+.welcome-banner{
+  background:linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.08));
+  border-radius:var(--r);border:1px solid rgba(59,130,246,0.15);
+  padding:24px 28px;margin-bottom:22px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  position:relative;overflow:hidden;
+}
+.welcome-banner::before{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle, rgba(59,130,246,0.1), transparent 70%);
+}
+.wb-left{}
+.wb-title{font-size:22px;font-weight:900;letter-spacing:-.04em}
+.wb-sub{font-size:13px;color:var(--text2);margin-top:3px}
+.wb-badge{
+  background:linear-gradient(135deg, var(--accent), var(--purple));
+  color:#fff;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;
+  white-space:nowrap;font-family:'SF Mono','Cascadia Code','Consolas',monospace;flex-shrink:0;
+}
+
+/* QUICK ACTIONS */
+.quick-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.qa{
+  display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;
+  border:1px solid var(--border);background:var(--card);cursor:pointer;
+  transition:all .2s;font-size:13px;font-weight:500;color:var(--text2);
+}
+.qa:hover{border-color:var(--border2);color:var(--accent2);background:var(--card2)}
+.qa-ico{font-size:16px}
+
+/* SECTION SEPARATOR */
+.sep{height:1px;background:var(--border);margin:24px 0}
+
+/* DOC INFO IN MODAL */
+.doc-info-card{
+  display:flex;align-items:center;gap:12px;padding:14px;
+  background:var(--bg2);border-radius:12px;margin-bottom:18px;
+  border:1px solid var(--border);
+}
+
+/* RESPONSIVE */
+@media(max-width:720px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .chat-wrap{grid-template-columns:1fr}
+  .csb{display:none}
+  .hdr{padding:0 16px}
+  .main{padding:18px 14px}
+  .ptitle{font-size:30px;font-weight:900;margin-bottom:5px;letter-spacing:-.06em;color:var(--text);line-height:1.1}
+  .welcome-banner{flex-direction:column;align-items:flex-start}
+}
+
+/* ===== TYPOGRAPHY ENHANCEMENTS ===== */
+.sval {
+  font-size: 40px !important;
+  font-weight: 900 !important;
+  letter-spacing: -3px !important;
+  background: linear-gradient(135deg, #93c5fd, #c4b5fd) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  line-height: 1 !important;
+  display: block;
+}
+.slbl { font-size: 12px; color: var(--text2); margin-top: 8px; font-weight: 500; letter-spacing: .02em; }
+.sico { font-size: 20px; margin-bottom: 8px; }
+.ptitle {
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  letter-spacing: -.05em !important;
+  background: linear-gradient(135deg, #f0f9ff, #bfdbfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1 !important;
+  margin-bottom: 6px !important;
+}
+.wb-title {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  letter-spacing: -.04em !important;
+}
+</style>
+</head>
+<body>
+
+<div id="auth">
+  <div class="grid-bg"></div>
+  <div class="ac">
+    <div class="alo">
+      <div class="ali">🏥</div>
+      <h1>MedConnect</h1>
+      <p>Платформа телемедицины нового поколения</p>
+    </div>
+    <div class="rtabs">
+      <button class="rtab on" onclick="selRole('patient')">👤 Я пациент</button>
+      <button class="rtab" onclick="selRole('doctor')">🩺 Я врач</button>
+    </div>
+    <div class="fg">
+      <label>Имя и фамилия</label>
+      <input id="an" class="fi" placeholder="Иван Иванов" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div class="fg" id="sg" style="display:none">
+      <label>Специализация</label>
+      <select id="aspec" class="fi fsel">
+        <option>Терапевт</option><option>Кардиолог</option><option>Невролог</option>
+        <option>Дерматолог</option><option>Педиатр</option><option>Эндокринолог</option>
+      </select>
+    </div>
+    <button class="btn-p" onclick="login()">Войти →</button>
+    <div class="dhint">Демо: <b onclick="dlogin('patient')">пациент</b> или <b onclick="dlogin('doctor')">врач</b></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="dbbar" id="dbbar">MedConnect DB — локальная база данных активна</div>
+  <header class="hdr">
+    <div class="hlogo">MedConnect</div>
+    <nav class="hnav" id="hnav"></nav>
+    <div class="huser">
+      <div class="av" id="hav"></div>
+      <div><div class="uname" id="hname"></div><div class="urole" id="hrole"></div></div>
+      <button class="btn-out" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+  <main class="main">
+
+    <div class="page" id="pg-dash">
+      <div id="welcome-wrap"></div>
+      <div class="g3" id="dstats" style="margin-bottom:22px"></div>
+      <div id="dcont"></div>
+    </div>
+
+    <div class="page" id="pg-docs">
+      <div class="ptitle">Найти врача</div>
+      <div class="psub">Выберите специалиста и запишитесь на консультацию</div>
+      <div class="ftabs" id="specf"></div>
+      <div class="g2" id="doclist"></div>
+    </div>
+
+    <div class="page" id="pg-appts">
+      <div class="ptitle" id="aptitle">Приёмы</div>
+      <div class="psub" id="apsub"></div>
+      <div class="ftabs" id="apfilter"></div>
+      <div id="aplist"></div>
+    </div>
+
+    <div class="page" id="pg-chat">
+      <div class="ptitle">Сообщения</div>
+      <div class="psub">Защищённый чат с врачами и пациентами</div>
+      <div class="chat-wrap">
+        <div class="csb">
+          <div class="csbh">Диалоги</div>
+          <div class="clist" id="clist"></div>
+        </div>
+        <div class="cmain">
+          <div class="chead">
+            <div class="av" id="cpav">?</div>
+            <div>
+              <div class="chn" id="cpname">Выберите диалог</div>
+              <div class="chs"><span class="gdot"></span> онлайн</div>
+            </div>
+          </div>
+          <div class="msgs" id="msgs"></div>
+          <div class="cwrap">
+            <textarea class="ci" id="ci" placeholder="Напишите сообщение..." rows="1"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+            <button class="btn-send" onclick="sendMsg()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="pg-card">
+      <div class="ptitle" id="ctitle"></div>
+      <div class="psub" id="csub"></div>
+      <div id="ccont"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="moverlay" id="bmodal">
+  <div class="modal">
+    <div class="mtitle">📅 Запись на приём</div>
+    <div id="bdocinfo" class="doc-info-card"></div>
+    <div class="fg"><label>Дата</label><input type="date" id="bdate" class="fi" onchange="renderSlots()"></div>
+    <div class="fg"><label>Доступное время</label><div class="tslots" id="tslots"></div></div>
+    <div class="fg"><label>Причина визита</label><input class="fi" id="breason" placeholder="Опишите симптомы..."></div>
+    <div class="macts">
+      <button class="btn-cx" onclick="closeM('bmodal')">Отмена</button>
+      <button class="btn-p" style="flex:2" onclick="confirmBook()">Записаться</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="moverlay" id="cmodal">
+  <div class="cm">
+    <div class="cm-ico" id="cico"></div>
+    <div class="cm-title" id="ctit"></div>
+    <div class="cm-sub" id="csub2"></div>
+    <div class="cm-acts">
+      <button class="btn-cx" onclick="closeM('cmodal')">Отмена</button>
+      <button id="cbtn" onclick="doAction()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var DBK='mc_db_v3';
+var DOCS=[
+  {id:1,name:'Анна Петрова',spec:'Терапевт',ini:'АП',exp:'12 лет',rat:'4.9',price:'4 400 ₸',tags:['ОРВИ','Хронические','Профилактика'],online:true},
+  {id:2,name:'Михаил Соколов',spec:'Кардиолог',ini:'МС',exp:'18 лет',rat:'4.8',price:'6 600 ₸',tags:['Гипертония','ЭКГ','Аритмия'],online:true},
+  {id:3,name:'Елена Воронова',spec:'Невролог',ini:'ЕВ',exp:'9 лет',rat:'4.7',price:'5 500 ₸',tags:['Мигрень','Остеохондроз','Стресс'],online:false},
+  {id:4,name:'Дмитрий Орлов',spec:'Дерматолог',ini:'ДО',exp:'7 лет',rat:'4.9',price:'4 950 ₸',tags:['Акне','Экзема','Псориаз'],online:true},
+  {id:5,name:'Ирина Зайцева',spec:'Педиатр',ini:'ИЗ',exp:'15 лет',rat:'5.0',price:'4 700 ₸',tags:['Дети 0-18','Прививки','Развитие'],online:true},
+  {id:6,name:'Алексей Кузнецов',spec:'Эндокринолог',ini:'АК',exp:'11 лет',rat:'4.6',price:'6 050 ₸',tags:['Диабет','Щитовидка','Гормоны'],online:false}
+];
+var TIMES=['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+var PCARDS={
+  'p1':{name:'Иван Иванов',dob:'15.03.1988',age:'37 лет',blood:'A(II) Rh+',height:'178 см',weight:'82 кг',allergy:'Пенициллин',chronic:'Гипертония I ст.',phone:'+7 (999) 123-45-67',email:'ivanov@mail.ru',hist:[{date:'10 фев 2026',title:'Консультация невролога',desc:'Мигрень. Назначен Суматриптан 50мг.'},{date:'15 янв 2026',title:'Общий анализ крови',desc:'Гемоглобин 142, норма.'},{date:'20 дек 2025',title:'Консультация терапевта',desc:'ОРВИ. Больничный 7 дней.'},{date:'5 ноя 2025',title:'ЭКГ',desc:'Синусовый ритм, норма.'}]},
+  'p2':{name:'Мария Сидорова',dob:'22.07.1997',age:'28 лет',blood:'B(III) Rh-',height:'165 см',weight:'57 кг',allergy:'Нет',chronic:'ОРВИ (повторное)',phone:'+7 (916) 234-56-78',email:'sidorova@mail.ru',hist:[{date:'15 фев 2026',title:'Консультация терапевта',desc:'ОРВИ. Назначен Амоксициллин.'},{date:'3 янв 2026',title:'Общий анализ мочи',desc:'Без патологий.'},{date:'10 ноя 2025',title:'Флюорография',desc:'Патологий не выявлено.'}]},
+  'p3':{name:'Олег Петров',dob:'11.04.1971',age:'54 лет',blood:'0(I) Rh+',height:'182 см',weight:'98 кг',allergy:'Аспирин',chronic:'Сахарный диабет II типа',phone:'+7 (903) 345-67-89',email:'petrov@mail.ru',hist:[{date:'20 янв 2026',title:'Контроль сахара крови',desc:'Глюкоза 7.8 ммоль/л, скорректирована доза Метформина.'},{date:'5 дек 2025',title:'Консультация эндокринолога',desc:'Диабет компенсирован. Рекомендована диета.'},{date:'14 окт 2025',title:'ЭКГ',desc:'Умеренные изменения, наблюдение.'}]},
+  'p4':{name:'Светлана Ким',dob:'30.09.1983',age:'42 лет',blood:'A(II) Rh-',height:'170 см',weight:'63 кг',allergy:'Ибупрофен',chronic:'Хроническая мигрень',phone:'+7 (926) 456-78-90',email:'kim@mail.ru',hist:[{date:'18 фев 2026',title:'Консультация невролога',desc:'Мигрень с аурой. Назначен Топирамат.'},{date:'2 фев 2026',title:'МРТ головного мозга',desc:'Патологий не выявлено.'},{date:'15 дек 2025',title:'Консультация терапевта',desc:'Повышенное АД 145/90. Рекомендован Лизиноприл.'}]}
+};
+var PATIENTS=[{id:'p1',name:'Иван Иванов',age:37,last:'10 фев 2026',dx:'Гипертония I ст.'},{id:'p2',name:'Мария Сидорова',age:28,last:'15 фев 2026',dx:'ОРВИ'},{id:'p3',name:'Олег Петров',age:54,last:'20 янв 2026',dx:'Диабет II типа'},{id:'p4',name:'Светлана Ким',age:42,last:'18 фев 2026',dx:'Мигрень'}];
+
+function dbLoad(){try{var r=localStorage.getItem(DBK);return r?JSON.parse(r):null}catch(e){return null}}
+function dbSave(){try{localStorage.setItem(DBK,JSON.stringify(DB))}catch(e){}}
+function dbInit(){
+  var ex=dbLoad();
+  if(ex&&ex.v===3)return ex;
+  var db={v:3,appts:[
+    {id:'a1',pid:'p1',pname:'Иван Иванов',did:1,dname:'Анна Петрова',spec:'Терапевт',date:'2026-02-25',time:'10:00',status:'confirmed',reason:'Общая консультация',ts:Date.now()-864e5*3},
+    {id:'a2',pid:'p1',pname:'Иван Иванов',did:2,dname:'Михаил Соколов',spec:'Кардиолог',date:'2026-03-03',time:'14:30',status:'pending',reason:'Повышенное давление',ts:Date.now()-864e5*2},
+    {id:'a3',pid:'p1',pname:'Иван Иванов',did:3,dname:'Елена Воронова',spec:'Невролог',date:'2026-02-10',time:'11:00',status:'done',reason:'Мигрень',ts:Date.now()-864e5*10},
+    {id:'a4',pid:'p2',pname:'Мария Сидорова',did:1,dname:'Анна Петрова',spec:'Терапевт',date:'2026-02-26',time:'12:00',status:'pending',reason:'Простуда',ts:Date.now()-864e5},
+    {id:'a5',pid:'p3',pname:'Олег Петров',did:1,dname:'Анна Петрова',spec:'Кардиолог',date:'2026-02-28',time:'09:30',status:'confirmed',reason:'ЭКГ контроль',ts:Date.now()-864e5*2}
+  ],msgs:{'p1-1':[{f:'d',t:'Здравствуйте! Как вы себя чувствуете?',time:'09:30'},{f:'p',t:'Добрый день! Немного болит голова.',time:'09:32'},{f:'d',t:'Давление измеряли? Сколько показывает?',time:'09:33'},{f:'p',t:'135/85, немного повышено.',time:'09:35'},{f:'d',t:'Умеренное повышение. Выпейте воды и отдохните.',time:'09:36'}],'p1-2':[{f:'d',t:'Получил ваши анализы ЭКГ.',time:'14:00'},{f:'p',t:'Всё в порядке?',time:'14:05'},{f:'d',t:'В целом хорошо. Обсудим на приёме 3 марта.',time:'14:07'}],'p1-3':[{f:'d',t:'Как самочувствие после курса от мигрени?',time:'11:00'},{f:'p',t:'Намного лучше, спасибо!',time:'11:20'}]}};
+  localStorage.setItem(DBK,JSON.stringify(db));
+  return db;
+}
+var DB=dbInit();
+var U=null,ROLE='patient',SDOC=null,STIME=null,ACID='p1-1',SPF='Все',APF='all',PA=null;
+
+function selRole(r){ROLE=r;var t=document.querySelectorAll('.rtab');t[0].classList.toggle('on',r==='patient');t[1].classList.toggle('on',r==='doctor');document.getElementById('sg').style.display=r==='doctor'?'block':'none'}
+function dlogin(r){ROLE=r;document.getElementById('an').value=r==='patient'?'Иван Иванов':'Анна Петрова';selRole(r);login()}
+function login(){
+  var name=(document.getElementById('an').value||'').trim()||(ROLE==='patient'?'Пациент':'Врач');
+  var spec=ROLE==='doctor'?document.getElementById('aspec').value:null;
+  var parts=name.split(' '),ini='';
+  for(var i=0;i<Math.min(2,parts.length);i++)if(parts[i])ini+=parts[i][0].toUpperCase();
+  var uid; if(ROLE==='patient'){uid='p1';}else{var dm=null;for(var j=0;j<DOCS.length;j++)if(DOCS[j].name===name){dm=DOCS[j];break}uid=dm?dm.id:1;}
+  U={name:name,role:ROLE,spec:spec,ini:ini,uid:uid};
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').classList.add('on');
+  initApp();
+}
+function logout(){document.getElementById('auth').style.display='flex';document.getElementById('app').classList.remove('on');U=null}
+
+function initApp(){
+  document.getElementById('hav').textContent=U.ini;
+  document.getElementById('hname').textContent=U.name;
+  document.getElementById('hrole').textContent=U.role==='patient'?'Пациент':U.spec;
+  var pages=U.role==='patient'?[['dash','🏠 Главная'],['docs','🩺 Врачи'],['appts','📅 Приёмы'],['chat','💬 Чат','2'],['card','📋 Карточка']]:[['dash','🏠 Главная'],['appts','📅 Приёмы'],['chat','💬 Чат'],['card','👥 Пациенты']];
+  var h='';for(var i=0;i<pages.length;i++){var p=pages[i];h+='<button class="nb" id="nb-'+p[0]+'" onclick="goPage(\''+p[0]+'\')">'+p[1]+(p[2]?'<span class="nbadge">'+p[2]+'</span>':'')+'</button>'}
+  document.getElementById('hnav').innerHTML=h;
+  U._init=false;buildDash();buildDocs();buildAppts();buildChat();buildCard();U._init=true;goPage('dash');
+  setInterval(function(){if(U)document.getElementById('dbbar').textContent='MedConnect DB — '+DB.appts.length+' записей · '+Object.keys(DB.msgs).length+' диалогов · Синхронизировано';},4000);
+}
+
+function goPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on')});
+  var pg=document.getElementById('pg-'+id),nb=document.getElementById('nb-'+id);
+  if(pg)pg.classList.add('on');if(nb)nb.classList.add('on');
+  if(id==="chat"&&U._init)buildChat();
+  if(id==="card"&&U._init)buildCard();
+  if(id==="appts"&&U._init)buildAppts();
+  if(id==="dash"&&U._init)buildDash();
+}
+
+// DASHBOARD
+function buildDash(){
+  var isDoc=U.role==='doctor';
+  var firstName=U.name.split(' ')[0];
+  var hour=new Date().getHours();
+  var greet=hour<12?'Доброе утро':hour<17?'Добрый день':'Добрый вечер';
+  var my=getMyAppts();
+  var pend=isDoc?DB.appts.filter(function(a){return a.status==='pending'&&a.did===U.uid}).length:my.filter(function(a){return a.status==='pending'}).length;
+  var active=my.filter(function(a){return a.status==='confirmed'||a.status==='pending'});
+
+  document.getElementById('welcome-wrap').innerHTML=
+    '<div class="welcome-banner"><div class="wb-left"><div class="wb-title">'+greet+', '+firstName+'! 👋</div><div class="wb-sub">'+(isDoc?'Ваша рабочая панель · '+new Date().toLocaleDateString('ru',{weekday:'long',day:'numeric',month:'long'}):'Ваша панель здоровья · '+new Date().toLocaleDateString('ru',{weekday:'long',day:'numeric',month:'long'}))+'</div></div><div class="wb-badge">'+(isDoc?'🩺 Врач':'🏥 Пациент')+'</div></div>';
+
+  var stats=isDoc?
+    [['📅',DB.appts.length,'Всего записей','📈'],['⏳',pend,'Ожидают подтвержд.','🔔'],['💬',Object.keys(DB.msgs).length,'Диалогов','📨'],['✅',DB.appts.filter(function(a){return a.status==='done'}).length,'Завершено','🏆']]:
+    [['📅',active.length,'Активных приёмов','📈'],['⏳',pend,'Ожидают','🔔'],['❤️','98%','Здоровье','💊'],['💬',Object.keys(DB.msgs).length,'Сообщений','📨']];
+
+  var h='';for(var i=0;i<stats.length;i++){
+    h+='<div class="scard"><span class="stag">'+stats[i][3]+'</span><div class="sico">'+stats[i][0]+'</div><div class="sval">'+stats[i][1]+'</div><div class="slbl">'+stats[i][2]+'</div></div>';
+  }
+  document.getElementById('dstats').innerHTML=h;
+
+  var up=active.slice(0,3);
+  var ah=up.length?up.map(function(a){return aRow(a,false)}).join(''):'<div style="color:var(--text2);font-size:13px;padding:16px 0;text-align:center">Нет предстоящих приёмов</div>';
+  var btn=U.role==='patient'?'<div style="margin-top:14px"><button class="btn-bk" onclick="goPage(\'docs\')">+ Записаться к врачу</button></div>':'';
+
+  var qaHtml='<div class="quick-actions">';
+  if(U.role==='patient'){
+    qaHtml+='<div class="qa" onclick="goPage(\'docs\')"><span class="qa-ico">🔍</span>Найти врача</div>';
+    qaHtml+='<div class="qa" onclick="goPage(\'appts\')"><span class="qa-ico">📅</span>Мои приёмы</div>';
+    qaHtml+='<div class="qa" onclick="goPage(\'chat\')"><span class="qa-ico">💬</span>Написать врачу</div>';
+    qaHtml+='<div class="qa" onclick="goPage(\'card\')"><span class="qa-ico">📋</span>Моя карточка</div>';
+  }else{
+    qaHtml+='<div class="qa" onclick="goPage(\'appts\')"><span class="qa-ico">📅</span>Расписание</div>';
+    qaHtml+='<div class="qa" onclick="goPage(\'chat\')"><span class="qa-ico">💬</span>Сообщения</div>';
+    qaHtml+='<div class="qa" onclick="goPage(\'card\')"><span class="qa-ico">👥</span>Пациенты</div>';
+  }
+  qaHtml+='</div>';
+
+  document.getElementById('dcont').innerHTML=qaHtml+'<div class="card-glow"><div class="slabel">Ближайшие приёмы</div>'+ah+btn+'</div>';
+}
+
+// DOCTORS
+function buildDocs(){
+  var specs=['Все'];DOCS.forEach(function(d){if(specs.indexOf(d.spec)<0)specs.push(d.spec)});
+  var h='';specs.forEach(function(s){h+='<button class="ftab'+(s==='Все'?' on':'')+(s!=='Все'?' spec-tag':'')+'\" data-s="'+s+'" onclick="filterSpec(this)">'+s+'</button>'});
+  document.getElementById('specf').innerHTML=h;renderDocs();
+}
+function filterSpec(btn){SPF=btn.getAttribute('data-s');document.querySelectorAll('#specf .ftab').forEach(function(b){b.classList.remove('on')});btn.classList.add('on');renderDocs()}
+function renderDocs(){
+  var list=SPF==='Все'?DOCS:DOCS.filter(function(d){return d.spec===SPF});
+  var h='';list.forEach(function(d){
+    var onlHtml=d.online?
+      '<div class="donl"><span class="odot"></span><span class="donl-on">онлайн</span></div>':
+      '<div class="donl"><span style="width:6px;height:6px;border-radius:50%;background:var(--text3);display:inline-block;flex-shrink:0"></span><span class="donl-off">офлайн</span></div>';
+    var tags=d.tags.map(function(t){return'<span class="tag">'+t+'</span>'}).join('');
+    var stars='★'.repeat(Math.floor(parseFloat(d.rat)))+'☆'.repeat(5-Math.floor(parseFloat(d.rat)));
+    h+='<div class="dcard">';
+    h+='<div class="dhead">';
+    h+='<div class="dav">'+d.ini+'</div>';
+    h+='<div style="flex:1"><div class="dname">'+d.name+'</div>';
+    h+='<div class="dspec">'+d.spec+' · '+d.exp+' опыта</div>';
+    h+='<div class="drat"><span class="drat-stars">'+stars+'</span><span class="drat-num">'+d.rat+'</span></div>';
+    h+=onlHtml+'</div>';
+    h+='<div class="dprice">'+d.price+'</div>';
+    h+='</div>';
+    h+='<div class="dtags">'+tags+'</div>';
+    h+='<div class="divider"></div>';
+    h+='<div class="dcard-footer"><button class="btn-bk" onclick="openBook('+d.id+')">📅 Записаться</button></div>';
+    h+='</div>';
+  });
+  document.getElementById('doclist').innerHTML=h;
+}
+
+// APPOINTMENTS
+function getMyAppts(){return U.role==='patient'?DB.appts.filter(function(a){return a.pid===U.uid}):DB.appts.filter(function(a){return a.did===U.uid})}
+function buildAppts(){
+  document.getElementById('aptitle').textContent=U.role==='doctor'?'Расписание приёмов':'Мои приёмы';
+  document.getElementById('apsub').textContent=U.role==='doctor'?'Управляйте записями пациентов':'Ваши записи к врачам';
+  var fs=[['all','Все'],['pending','Ожидают'],['confirmed','Подтверждённые'],['done','Завершённые'],['rejected','Отклонённые'],['cancelled','Отменённые']];
+  var h='';fs.forEach(function(f){h+='<button class="ftab'+(APF===f[0]?' on':'')+'\" data-f="'+f[0]+'" onclick="filterAppts(this)">'+f[1]+'</button>'});
+  document.getElementById('apfilter').innerHTML=h;renderAppts();
+}
+function filterAppts(btn){APF=btn.getAttribute('data-f');document.querySelectorAll('#apfilter .ftab').forEach(function(b){b.classList.remove('on')});btn.classList.add('on');renderAppts()}
+function renderAppts(){
+  var all=getMyAppts();
+  var list=APF==='all'?all:all.filter(function(a){return a.status===APF});
+  list.sort(function(a,b){var o={pending:0,confirmed:1,done:2,rejected:3,cancelled:4};return(o[a.status]||5)-(o[b.status]||5)});
+  if(!list.length){document.getElementById('aplist').innerHTML='<div class="empty"><div class="empty-ico">📅</div><div class="empty-t">Записей нет</div></div>';return}
+  document.getElementById('aplist').innerHTML=list.map(function(a){return aRow(a,true)}).join('');
+}
+function aRow(a,btns){
+  var d=new Date(a.date+'T00:00:00'),day=d.getDate(),mon=d.toLocaleString('ru',{month:'short'});
+  var dc=a.status==='done'?'gr':a.status==='rejected'||a.status==='cancelled'?'r':'g';
+  var badges={confirmed:'<span class="badge b-conf">✓ Подтверждён</span>',pending:'<span class="badge b-pend">⏳ Ожидает</span>',done:'<span class="badge b-done">Завершён</span>',rejected:'<span class="badge b-rej">✕ Отклонён</span>',cancelled:'<span class="badge b-can">Отменён</span>'};
+  var note='';
+  if(a.status==='rejected')note='<div class="anote" style="color:var(--danger)">Приём отклонён врачом</div>';
+  if(a.status==='cancelled')note='<div class="anote" style="color:var(--text2)">Запись отменена пациентом</div>';
+  var bh='';
+  if(btns){
+    if(U.role==='patient'){
+      if(a.status==='confirmed')bh+='<button class="abtn abtn-green" onclick="goPage(\'chat\')">💬 Чат</button><button class="abtn abtn-grey" onclick="askAction(\'cancel\',\''+a.id+'\')">Отменить</button>';
+      if(a.status==='pending')bh+='<button class="abtn abtn-grey" onclick="askAction(\'cancel\',\''+a.id+'\')">Отменить</button>';
+    }else{
+      if(a.status==='pending')bh+='<button class="abtn abtn-green" onclick="askAction(\'confirm\',\''+a.id+'\')">✓ Подтвердить</button><button class="abtn abtn-red" onclick="askAction(\'reject\',\''+a.id+'\')">✕ Отклонить</button>';
+      if(a.status==='confirmed')bh+='<button class="abtn abtn-green" onclick="goPage(\'chat\')">💬 Чат</button><button class="abtn abtn-done" onclick="askAction(\'done\',\''+a.id+'\')">Завершить</button><button class="abtn abtn-red" onclick="askAction(\'reject\',\''+a.id+'\')">✕ Отклонить</button>';
+    }
+  }
+  var label=U.role==='patient'?a.dname:a.pname;
+  return'<div class="ai'+(a.status==='rejected'||a.status==='cancelled'?' dim':'')+'"><div class="adate '+dc+'"><div class="aday '+dc+'">'+day+'</div><div class="amon '+dc+'">'+mon+'</div></div><div class="ainfo"><div class="adoc">'+label+'</div><div class="aspec">'+a.spec+(U.role==='doctor'?' · '+a.pname:'')+'</div><div class="atime">🕐 '+a.time+' · '+a.reason+'</div>'+note+'</div>'+(badges[a.status]||'')+(bh?'<div class="abtns">'+bh+'</div>':'')+'</div>';
+}
+
+function findA(id){for(var i=0;i<DB.appts.length;i++)if(DB.appts[i].id===id)return i;return-1}
+function setStatus(id,st){var i=findA(id);if(i<0)return;DB.appts[i].status=st;dbSave();renderAppts();buildDash()}
+
+function askAction(type,id){
+  var i=findA(id);if(i<0)return;var a=DB.appts[i];
+  var configs={
+    confirm:{ico:'✅',title:'Подтвердить приём?',sub:'Пациент: '+a.pname+'\n'+a.date+' в '+a.time,btn:'Подтвердить',cls:'btn-success',fn:function(){setStatus(id,'confirmed');toast('Приём подтверждён','green')}},
+    reject:{ico:'❌',title:'Отклонить запись?',sub:'Пациент: '+a.pname+'\n'+a.date+' в '+a.time+'\n\nПациент будет уведомлён.',btn:'Отклонить',cls:'btn-danger',fn:function(){setStatus(id,'rejected');toast('Запись отклонена','red')}},
+    cancel:{ico:'📅',title:'Отменить запись?',sub:'Врач: '+a.dname+'\n'+a.date+' в '+a.time,btn:'Отменить',cls:'btn-danger',fn:function(){setStatus(id,'cancelled');toast('Запись отменена','orange')}},
+    done:{ico:'🏥',title:'Завершить приём?',sub:'Пациент: '+a.pname+'\n'+a.date+' в '+a.time,btn:'Завершить',cls:'btn-success',fn:function(){setStatus(id,'done');toast('Приём завершён','green')}}
+  };
+  var c=configs[type];if(!c)return;
+  PA=c.fn;
+  document.getElementById('cico').innerHTML=c.ico;
+  document.getElementById('ctit').textContent=c.title;
+  document.getElementById('csub2').textContent=c.sub;
+  var cb=document.getElementById('cbtn');
+  cb.textContent=c.btn;cb.className=c.cls;
+  document.getElementById('cmodal').classList.add('on');
+}
+function doAction(){closeM('cmodal');if(PA){PA();PA=null}}
+
+// BOOKING
+function openBook(did){
+  SDOC=null;for(var i=0;i<DOCS.length;i++)if(DOCS[i].id===did){SDOC=DOCS[i];break}
+  if(!SDOC)return;STIME=null;
+  document.getElementById('bdocinfo').innerHTML='<div class="dav" style="width:44px;height:44px;border-radius:12px;font-size:15px">'+SDOC.ini+'</div><div><div style="font-weight:700;font-family:Syne,sans-serif">'+SDOC.name+'</div><div style="font-size:12px;color:var(--accent2);margin-top:2px">'+SDOC.spec+'</div><div style="font-size:13px;color:var(--green);margin-top:2px;font-family:IBM Plex Mono,monospace">'+SDOC.price+'</div></div>';
+  var today=new Date().toISOString().split('T')[0];
+  document.getElementById('bdate').value=today;document.getElementById('bdate').min=today;
+  document.getElementById('breason').value='';renderSlots();
+  document.getElementById('bmodal').classList.add('on');
+}
+function renderSlots(){
+  var date=document.getElementById('bdate').value,taken={};
+  DB.appts.forEach(function(a){if(a.did===SDOC.id&&a.date===date&&(a.status==='confirmed'||a.status==='pending'))taken[a.time]=1});
+  STIME=null;
+  document.getElementById('tslots').innerHTML=TIMES.map(function(t){return taken[t]?'<div class="ts taken">'+t+'</div>':'<div class="ts" onclick="pickTime(this,\''+t+'\')">'+t+'</div>'}).join('');
+}
+function pickTime(el,t){if(el.classList.contains('taken'))return;STIME=t;document.querySelectorAll('.ts').forEach(function(s){s.classList.remove('on')});el.classList.add('on')}
+function closeM(id){document.getElementById(id).classList.remove('on')}
+function confirmBook(){
+  if(!STIME){toast('Выберите время','orange');return}
+  var date=document.getElementById('bdate').value;
+  var reason=(document.getElementById('breason').value||'').trim()||'Консультация';
+  DB.appts.unshift({id:'a'+Date.now(),pid:U.uid,pname:U.name,did:SDOC.id,dname:SDOC.name,spec:SDOC.spec,date:date,time:STIME,status:'pending',reason:reason,ts:Date.now()});
+  dbSave();closeM('bmodal');buildDash();goPage('appts');
+  toast('Запись к '+SDOC.name+' отправлена — ожидайте подтверждения','green');
+}
+
+// CHAT
+function getChatContacts(){
+  if(U.role==='patient'){
+    var seen={},contacts=[];
+    DB.appts.filter(function(a){return a.pid===U.uid}).forEach(function(a){
+      if(!seen[a.did]){seen[a.did]=1;var doc=DOCS.find(function(d){return d.id===a.did});if(doc)contacts.push({id:'p1-'+a.did,name:doc.name,ini:doc.ini});}
+    });
+    if(!contacts.length)contacts=DOCS.slice(0,3).map(function(d){return{id:'p1-'+d.id,name:d.name,ini:d.ini}});
+    return contacts;
+  }else{
+    var seen2={},contacts2=[];
+    DB.appts.filter(function(a){return a.did===U.uid}).forEach(function(a){
+      if(!seen2[a.pid]){seen2[a.pid]=1;var pt=PATIENTS.find(function(p){return p.id===a.pid});if(pt){var ini=pt.name.split(' ').map(function(w){return w[0]}).join('');contacts2.push({id:a.pid+'-'+U.uid,name:pt.name,ini:ini});}}
+    });
+    if(!contacts2.length)contacts2=PATIENTS.slice(0,3).map(function(p){var ini=p.name.split(' ').map(function(w){return w[0]}).join('');return{id:p.id+'-1',name:p.name,ini:ini}});
+    return contacts2;
+  }
+}
+function buildChat(){
+  var contacts=getChatContacts();
+  var h='';contacts.forEach(function(c,i){
+    var ml=DB.msgs[c.id]||[],last=ml.length?ml[ml.length-1].t:'Нет сообщений';
+    h+='<div class="cc'+(i===0?' on':'')+'\" onclick="openChat(\''+c.id+'\',\''+c.name+'\',\''+c.ini+'\')" id="cc'+i+'"><div class="av" style="width:36px;height:36px;font-size:12px">'+c.ini+'</div><div class="cinfo"><div class="cname">'+c.name+'</div><div class="cmsg">'+last+'</div></div>'+(i<2?'<div class="udot"></div>':'')+'</div>';
+  });
+  document.getElementById('clist').innerHTML=h;
+  openChat(contacts[0].id,contacts[0].name,contacts[0].ini);
+}
+function openChat(cid,name,ini){
+  ACID=cid;
+  document.getElementById('cpname').textContent=name;document.getElementById('cpav').textContent=ini;
+  document.querySelectorAll('.cc').forEach(function(c){c.classList.remove('on')});
+  document.querySelectorAll('.cc').forEach(function(c){if(c.getAttribute('onclick')&&c.getAttribute('onclick').indexOf("'"+cid+"'")>=0)c.classList.add('on')});
+  var ml=DB.msgs[cid]||[],h='';
+  ml.forEach(function(m){
+    var isMe=(U.role==='patient'&&m.f==='p')||(U.role==='doctor'&&m.f==='d');
+    var cls=isMe?'me':'them';var snd=!isMe?'<div class="msnd">'+name+'</div>':'';
+    h+='<div class="msg '+cls+'">'+snd+'<div class="mb">'+eh(m.t)+'</div><div class="mt">'+m.time+'</div></div>';
+  });
+  var c=document.getElementById('msgs');
+  c.innerHTML=h||'<div style="text-align:center;color:var(--text2);padding:40px;font-size:13px">Начните диалог</div>';
+  c.scrollTop=c.scrollHeight;
+}
+function sendMsg(){
+  var inp=document.getElementById('ci'),txt=(inp.value||'').trim();if(!txt)return;
+  var now=new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+  inp.value='';inp.style.height='auto';
+  if(!DB.msgs[ACID])DB.msgs[ACID]=[];
+  var fk=U.role==='patient'?'p':'d';
+  DB.msgs[ACID].push({f:fk,t:txt,time:now});dbSave();
+  var c=document.getElementById('msgs');
+  c.innerHTML+='<div class="msg me" style="animation:slideR .2s ease"><div class="mb">'+eh(txt)+'</div><div class="mt">'+now+'</div></div>';
+  c.scrollTop=c.scrollHeight;
+}
+
+// CARD
+function buildCard(){
+  if(U.role==='doctor'){
+    document.getElementById('ctitle').textContent='Пациенты';
+    document.getElementById('csub').textContent='Список ваших пациентов';
+    var h='';PATIENTS.forEach(function(p){
+      var pend=DB.appts.filter(function(a){return a.pname===p.name&&a.status==='pending'}).length;
+      var pbadge=pend?'&nbsp;<span style="background:var(--warn);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-family:IBM Plex Mono,monospace">'+pend+' ожид.</span>':'';
+      h+='<div class="prow"><div class="av">'+p.name[0]+'</div><div style="flex:1"><div style="font-weight:700;font-family:Syne,sans-serif">'+p.name+pbadge+'</div><div style="font-size:12px;color:var(--accent2);margin-top:2px">'+p.age+' лет · '+p.dx+'</div><div style="font-size:11px;color:var(--text2);margin-top:2px;font-family:IBM Plex Mono,monospace">Визит: '+p.last+'</div></div><button class="abtn abtn-green" onclick="showPCard(\''+p.id+'\')">📋 Карта</button><button class="abtn" style="background:transparent;border:1px solid rgba(59,130,246,0.3)!important;color:var(--accent2)" onclick="goPage(\'chat\')">💬 Чат</button></div>';
+    });
+    document.getElementById('ccont').innerHTML=h;
+  }else{
+    document.getElementById('ctitle').textContent='Моя карточка';
+    document.getElementById('csub').textContent='Медицинская карточка пациента';
+    showPCard();
+  }
+}
+var CURPID='p1';
+function showPCard(pid){
+  var id=pid||(U.role==='patient'?U.uid:'p1');
+  CURPID=id;
+  var pt=PATIENTS.find(function(x){return x.id===id})||PATIENTS[0];
+  if(U.role==='doctor'){document.getElementById('ctitle').textContent='Карточка пациента';document.getElementById('csub').innerHTML=pt.name+' · ID #'+id+'&nbsp;<button class="abtn abtn-grey" style="font-size:11px;padding:3px 9px" onclick="buildCard()">← Назад</button>';}
+  var p=PCARDS[id]||PCARDS['p1'];
+  var displayName=(U.role==='patient')?U.name:p.name;
+  var hist=p.hist.map(function(h){return'<div class="tli"><div class="tldot"></div><div class="tldate">'+h.date+'</div><div class="tltitle">'+h.title+'</div><div class="tldesc">'+h.desc+'</div></div>'}).join('');
+
+  var bloodColor=p.blood.indexOf('Rh-')>=0?'var(--danger)':'var(--accent2)';
+
+  document.getElementById('ccont').innerHTML=
+    '<div class="g2" style="align-items:start">'+
+    '<div>'+
+    '<div class="card" style="margin-bottom:16px">'+
+    '<div class="slabel">👤 Личные данные</div>'+
+    '<div class="igrid">'+
+    '<div class="ii"><div class="il">Имя</div><div class="iv">'+displayName+'</div></div>'+
+    '<div class="ii"><div class="il">Дата рождения</div><div class="iv">'+p.dob+'</div></div>'+
+    '<div class="ii"><div class="il">Возраст</div><div class="iv">'+p.age+'</div></div>'+
+    '<div class="ii"><div class="il">Группа крови</div><div class="iv" style="color:'+bloodColor+'">'+p.blood+'</div></div>'+
+    '<div class="ii"><div class="il">Рост</div><div class="iv">'+p.height+'</div></div>'+
+    '<div class="ii"><div class="il">Вес</div><div class="iv">'+p.weight+'</div></div>'+
+    '</div></div>'+
+    '<div class="card" style="margin-bottom:16px">'+
+    '<div class="slabel">🏥 Здоровье</div>'+
+    '<div class="igrid">'+
+    '<div class="ii" style="border-left:3px solid var(--danger)"><div class="il">⚠ Аллергии</div><div class="iv" style="color:var(--danger)">'+p.allergy+'</div></div>'+
+    '<div class="ii" style="border-left:3px solid var(--warn)"><div class="il">Хронические</div><div class="iv">'+p.chronic+'</div></div>'+
+    '</div></div>'+
+    '<div class="card">'+
+    '<div class="slabel">📞 Контакты</div>'+
+    '<div class="igrid">'+
+    '<div class="ii"><div class="il">Телефон</div><div class="iv" style="font-family:IBM Plex Mono,monospace;font-size:13px">'+p.phone+'</div></div>'+
+    '<div class="ii"><div class="il">Email</div><div class="iv" style="font-family:IBM Plex Mono,monospace;font-size:12px">'+p.email+'</div></div>'+
+    '</div></div>'+
+    '</div>'+
+    '<div class="card">'+
+    '<div class="slabel">📋 История болезней</div>'+
+    '<div class="tl">'+hist+'</div>'+
+    (U.role==='doctor'?'<div style="margin-top:16px"><button class="btn-bk" onclick="addHist()">+ Добавить запись</button></div>':'')+
+    '</div></div>';
+}
+function addHist(){var t=prompt('Название:');if(!t)return;var d=prompt('Описание:');if(!d)return;var dt=new Date().toLocaleDateString('ru',{day:'numeric',month:'short',year:'numeric'});var pc=PCARDS[CURPID]||PCARDS['p1'];pc.hist.unshift({date:dt,title:t,desc:d});showPCard(CURPID);toast('Запись добавлена в карту','green')}
+
+function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function toast(msg,type){var o=document.querySelector('.toast');if(o)o.remove();var t=document.createElement('div');t.className='toast '+(type||'green');t.innerHTML=(type==='red'?'✕':type==='orange'?'⚠':'✓')+' '+eh(msg);document.body.appendChild(t);setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},400)},3500)}
+
+document.getElementById('bmodal').addEventListener('click',function(e){if(e.target===this)closeM('bmodal')});
+document.getElementById('cmodal').addEventListener('click',function(e){if(e.target===this)closeM('cmodal')});
+</script>
+</body>
+</html>
